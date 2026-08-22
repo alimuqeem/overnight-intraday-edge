@@ -14,6 +14,23 @@ Everything in [`../report.md`](../report.md) is built on official auction print-
 
 Not every retail broker offers MOC/LOO order types. Before relying on this strategy, confirm your broker actually supports them; if not, you're stuck approximating with regular market orders near the bell, which directly eats into the median ~4.2bps breakeven cushion found in [`../report.md` §5](../report.md#5-does-it-survive-costs-and-time-partially), a strategy with that thin a margin cannot absorb sloppy execution.
 
+### UK-accessible brokers, checked directly
+
+Checked each broker's own published order-type documentation rather than assuming; current as of this writing, not guaranteed to stay current as platforms change.
+
+| Broker | MOC / MOO support |
+|---|---|
+| **Interactive Brokers (IBKR UK)** | **Yes.** Both Market-on-Close and Market-on-Open are standard, explicitly documented order types for US stocks. |
+| **Saxo Markets** | **MOC confirmed** (Trade Type: Algo → Strategy: Market on Close). MOO not independently confirmed via the same menu; verify directly in-app before relying on it. |
+| **Robinhood (UK and US)** | **No.** Stated explicitly in their own support docs: *"Robinhood Financial doesn't currently support short selling, bracket orders, Market-on-Close orders, or Market-on-Open orders."* |
+| **Freetrade** | Not found. Documented order types stop at Queued, Instant, Limit, Stop Loss, Triggered, Extended hours. |
+| **Trading 212** | Not found. Documented order types stop at Market, Limit, Stop, Stop-Limit, OCO. |
+| **Hargreaves Lansdown** | Not found. Documented order types stop at "At Best," Fill or Kill, Limit, Stop Loss. |
+| **Interactive Investor (ii)** | Not found. Documented order types stop at Limit, Market, Stop Loss, "at best." |
+| **DEGIRO** | Not found. Documented order types stop at Market, Limit, Stop Loss, Stop Limit, Trailing Stop. |
+
+"Not found" means the order type doesn't appear in that broker's own published documentation, not a confirmed absence from every corner of their platform; a live chat with the broker's support desk is the only way to be certain. Among UK-accessible brokers, Interactive Brokers is the practical answer if precise auction-price execution matters; every broker below Saxo in this table would mean approximating with a plain market or limit order near the bell instead, reintroducing the slippage this section already flags as eating into an already-thin margin.
+
 ## The risk the backtest doesn't price: no ability to exit
 
 Once positioned at the close via MOC, there is no way to react to news, an earnings miss, a guidance cut, a macro shock, until the next open. The same mechanism that produces the big up-gaps in this project's data (MU, TSLA, NVDA) produces big down-gaps on bad nights. The breakeven-cost analysis in this project assumes a flat, symmetric per-trade cost; it does not model the fat-tailed, asymmetric risk of a specific bad overnight print. This is a real risk being taken, not just a statistical cost being paid.

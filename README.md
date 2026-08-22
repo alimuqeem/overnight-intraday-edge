@@ -14,15 +14,15 @@ A chart claimed MU is up **+138,330,342%** since 1990 if you only held it overni
 
 | Question | Answer |
 |---|---|
-| Is the MU chart's math right? | Yes — independently reproduced. |
+| Is the MU chart's math right? | Yes, independently reproduced. |
 | Does MU's *extreme* pattern (huge overnight gain, losing intraday) generalize? | **No.** Only MU, BAC, and FCX show it out of 33 names. |
-| Is there a real, general overnight-return effect? | **Yes** — 26 of 30 sector-diverse large-caps (excl. SPY/QQQ/MU) remain significant after Benjamini-Hochberg FDR correction, vs. ~1.5 expected by chance, matching published academic literature. |
-| Does it concentrate anywhere? | **Yes** — growth/high-attention sectors (Tech, Consumer Discretionary, Comm Services, Financials). It *reverses* in Staples, Energy, Utilities. |
+| Is there a real, general overnight-return effect? | **Yes.** 26 of 30 sector-diverse large-caps (excl. SPY/QQQ/MU) remain significant after Benjamini-Hochberg FDR correction, vs. ~1.5 expected by chance, matching published academic literature. |
+| Does it concentrate anywhere? | **Yes**, in growth/high-attention sectors (Tech, Consumer Discretionary, Comm Services, Financials). It *reverses* in Staples, Energy, Utilities. |
 | Is it repackaged momentum? | **No.** Momentum-factor loading on the overnight leg is statistically zero (t=0.13) after a HAC-robust 4-factor regression; 16/30 tickers keep significant alpha net of market/size/value/momentum. |
-| Is it persistent over time? | Reasonably — 0.65 cross-sectional correlation between first-half and second-half overnight returns per ticker. |
+| Is it persistent over time? | Reasonably: 0.65 cross-sectional correlation between first-half and second-half overnight returns per ticker. |
 | Is it a free lunch net of costs? | **No.** Median breakeven round-trip cost is ~4.2bps; even the best cases (TSLA, MU, NVDA) only tolerate ~13-15bps before the entire multi-decade edge disappears. |
 
-**Bottom line:** the overnight effect is real, academically well-documented (Berkman et al. 2012; Lou, Polk & Skouras 2019), survives multiple-comparisons correction, and is not just repackaged momentum exposure — but it's a growth-stock/retail-attention characteristic concentrated in about a third of the market, not a market-wide law, and it's economically thin enough that realistic trading costs erase it for most individual names. MU is the extreme tail of a real distribution, not a template.
+**Bottom line:** the overnight effect is real, academically well-documented (Berkman et al. 2012; Lou, Polk & Skouras 2019), survives multiple-comparisons correction, and is not just repackaged momentum exposure. But it's a growth-stock/retail-attention characteristic concentrated in about a third of the market, not a market-wide law, and it's economically thin enough that realistic trading costs erase it for most individual names. MU is the extreme tail of a real distribution, not a template.
 
 ## Reproduce it (fully offline)
 
@@ -34,7 +34,7 @@ python3 scripts/analyze.py       # overnight/intraday decomposition + HAC t-test
 python3 scripts/make_charts.py   # -> charts/
 ```
 
-`scripts/fetch_data.py` (fresh price data via `yfinance`/`curl_cffi`) and `scripts/fetch_factors.py` (fresh Fama-French factors) are only needed to refresh the dataset — both skip files that already exist and are not required to reproduce the existing report.
+`scripts/fetch_data.py` (fresh price data via `yfinance`/`curl_cffi`) and `scripts/fetch_factors.py` (fresh Fama-French factors) are only needed to refresh the dataset; both skip files that already exist and are not required to reproduce the existing report.
 
 ## Layout
 

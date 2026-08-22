@@ -31,6 +31,25 @@ Checked each broker's own published order-type documentation rather than assumin
 
 "Not found" means the order type doesn't appear in that broker's own published documentation, not a confirmed absence from every corner of their platform; a live chat with the broker's support desk is the only way to be certain. Among UK-accessible brokers, Interactive Brokers is the practical answer if precise auction-price execution matters; every broker below Saxo in this table would mean approximating with a plain market or limit order near the bell instead, reintroducing the slippage this section already flags as eating into an already-thin margin.
 
+### What would this actually cost, in practice? IBKR Pro vs. Robinhood
+
+The 5bps round-trip cost used throughout this project (and the portfolio backtest's own solved breakeven of 4.71bps, see [`portfolio_backtest.md`](portfolio_backtest.md)) is a flat modeling assumption, not a quote from either broker. Checked against real fee schedules, the answer turns out to depend more on **position size** than on which broker you pick.
+
+**Interactive Brokers Pro** (needed to access MOC/MOO at all; IBKR Lite uses PFOF routing similar to Robinhood and likely shares its order-type limitations). Tiered commission plan: $0.0035/share, **minimum $0.35 per order**. That minimum dominates at small size:
+
+| Position size per name | Commission (round-trip) |
+|---|---:|
+| $1,000 | **7.0bps**, already above the 4.71bps breakeven |
+| $3,000 | 2.3bps |
+| $5,000 | 1.4bps |
+| $10,000+ | 0.7bps, converging toward ~0.35bps at larger scale |
+
+On top of commission, add the bid-ask spread: this project's mega-cap universe (AAPL, MSFT, etc.) typically quotes $0.01-0.03 spreads on $100-500 stocks, roughly **0.5-1bps round-trip**; closing/opening auctions for these names are typically at least as tight as continuous-session quotes given their depth. SEC/FINRA regulatory fees (sell-side only) are a negligible fraction of a bp.
+
+**Realistic IBKR Pro total: roughly 1-2bps round-trip at $10k+ per position (comfortably clears the 4.71bps breakeven), rising to 3-8bps+ at $1-3k per position (at or above breakeven).** Position size, not broker choice, is the deciding variable once you're on a platform that supports the right order types at all.
+
+**Robinhood** is moot for the *exact* tested strategy since it doesn't support MOC/MOO (confirmed above). Approximating with plain market orders near the bell instead: $0 visible commission, but Robinhood monetizes via payment-for-order-flow, so cost shows up as execution quality rather than a fee line. Robinhood was fined $65M by the SEC in 2020 specifically for inferior execution quality versus peers, and more recent academic work still finds its price improvement weaker than brokers like TD Ameritrade. On top of that, approximating the auction with a market order carries slippage risk that a true MOC/MOO fill is specifically designed to avoid. No reliable bps estimate is possible without proprietary fill data, but directionally this stacks two extra cost sources on top of whatever IBKR Pro would charge for the same trade.
+
 ## The risk the backtest doesn't price: no ability to exit
 
 Once positioned at the close via MOC, there is no way to react to news, an earnings miss, a guidance cut, a macro shock, until the next open. The same mechanism that produces the big up-gaps in this project's data (MU, TSLA, NVDA) produces big down-gaps on bad nights. The breakeven-cost analysis in this project assumes a flat, symmetric per-trade cost; it does not model the fat-tailed, asymmetric risk of a specific bad overnight print. This is a real risk being taken, not just a statistical cost being paid.
@@ -52,4 +71,4 @@ Buying shares outright via MOC ties up the full position value overnight (100 sh
 
 ## Bottom line
 
-The backtest's numbers are achievable, they're built on real, tradable exchange auction prices for liquid large-caps, not a theoretical construct. But "achievable" requires the right order types (MOC/MOO, ideally with a broker that supports them), acceptance of real overnight gap risk with zero ability to react, and an honest accounting of taxes and execution slippage that this project's headline figures don't include.
+The backtest's numbers are achievable, they're built on real, tradable exchange auction prices for liquid large-caps, not a theoretical construct. But "achievable" requires the right order types (MOC/MOO, ideally with a broker that supports them), acceptance of real overnight gap risk with zero ability to react, and an honest accounting of taxes and execution slippage that this project's headline figures don't include. Sharpened against real fee schedules, IBKR Pro at meaningful position size (roughly $10k+ per name) lands around 1-2bps round-trip, comfortably inside the portfolio backtest's 4.71bps breakeven; the same strategy at small position size, or approximated on a broker without MOC/MOO support, likely does not.

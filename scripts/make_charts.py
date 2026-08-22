@@ -2,10 +2,12 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime
 from pathlib import Path
 
 import matplotlib
 matplotlib.use("Agg")
+import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -234,6 +236,45 @@ if eg_path.exists():
     ax.legend(loc="lower right", fontsize=8)
     fig.tight_layout()
     fig.savefig(CHARTS_DIR / "extreme_gap_decomposition.png", dpi=150)
+    plt.close(fig)
+
+# --- Chart 10: rolling 2-year overnight return over time (has the edge decayed?) ---
+recency_path = REPORTS_DIR / "recency_results.json"
+if recency_path.exists():
+    with open(recency_path) as f:
+        recency = json.load(f)
+    rolling = recency["rolling"]
+
+    fig, ax = plt.subplots(figsize=(12, 6))
+    line_specs = [
+        ("cross_sectional_mean", "Cross-sectional mean (30 tickers)", "#000000", 2.2),
+        ("SPY", "SPY", "#2b6cb0", 1.2),
+        ("QQQ", "QQQ", "#38a169", 1.2),
+        ("MU", "MU", "#c53030", 1.2),
+        ("NVDA", "NVDA", "#805ad5", 1.0),
+        ("AVGO", "AVGO", "#dd6b20", 1.0),
+        ("TSLA", "TSLA", "#d53f8c", 1.0),
+    ]
+    for key, label, color, lw in line_specs:
+        if key not in rolling or not rolling[key]:
+            continue
+        series = rolling[key]
+        dates = [datetime.strptime(p["date"], "%Y-%m-%d") for p in series]
+        vals = [p["ann_return_pct"] for p in series]
+        ax.plot(dates, vals, label=label, color=color, linewidth=lw, alpha=0.9 if key == "cross_sectional_mean" else 0.75)
+
+    ax.axhline(0, color="grey", linewidth=0.6)
+    ax.axvline(datetime.strptime(recency["summary"]["regime_break_date"], "%Y-%m-%d"),
+               color="red", linewidth=1.0, linestyle="--", alpha=0.6,
+               label="2021-01-01 (NY Fed 'disappearing drift' break date)")
+    ax.set_ylabel("Trailing 2-year annualized overnight return (%)")
+    ax.set_title("Has the Overnight Edge Decayed? Trailing 2-Year Rolling Return")
+    ax.xaxis.set_major_locator(mdates.YearLocator(2))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
+    fig.autofmt_xdate(rotation=45)
+    ax.legend(loc="upper left", fontsize=8, ncol=2)
+    fig.tight_layout()
+    fig.savefig(CHARTS_DIR / "recency_rolling_return.png", dpi=150)
     plt.close(fig)
 
 print("Charts written to", CHARTS_DIR)

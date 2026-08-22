@@ -42,7 +42,7 @@ The dashed gold line marks SPY's own realized buy-and-hold CAGR over this projec
 
 Two things are true at once:
 
-1. **The overnight leg is a genuine, statistically significant, broad-based phenomenon, and it survives multiple-comparisons correction.** 26 of 30 tickers remain significant after Benjamini-Hochberg FDR control, against an expected ~1.5 false positives by chance. This replicates the published literature (see [§7](#7-is-there-academic-basis-for-this)); it is not noise, and not a multiple-testing artifact.
+1. **The overnight leg is a genuine, statistically significant, broad-based phenomenon, and it survives multiple-comparisons correction.** 26 of 30 tickers remain significant after Benjamini-Hochberg FDR control, against an expected ~1.5 false positives by chance. This replicates the published literature (see [§8](#8-is-there-academic-basis-for-this)); it is not noise, and not a multiple-testing artifact.
 2. **The MU-style pattern (massive overnight gains *and* a losing intraday leg) is still not the general case.** Only BAC (and FCX marginally) join MU with a significantly *negative* intraday leg. For most stocks, both legs are positive; overnight is usually the bigger slice, but intraday isn't burning money, it's just growing slower.
 
 ![Significance scatter](charts/significance_scatter.png)
@@ -57,7 +57,7 @@ One change from the dividend-adjustment fix: the cross-sectional paired test (ov
 
 Grouping by GICS sector still makes the pattern explicit even after the dividend fix. The overnight-dominant effect concentrates in **Information Technology, Consumer Discretionary, Communication Services, and Financials**, sectors full of high-volatility, high-retail-attention, "story" stocks. It **reverses** in **Consumer Staples, Energy, Utilities, and (mildly) Health Care**, the boring, low-attention, dividend-paying end of the market, where the *intraday* session now captures more of the return even with the dividend-leakage artifact removed.
 
-This lines up with the leading academic explanation for the overnight effect (retail investors chasing high-attention stocks at the open, see §7): staples and utilities don't attract that kind of speculative morning order flow, so they don't show the pattern.
+This lines up with the leading academic explanation for the overnight effect (retail investors chasing high-attention stocks at the open, see §8): staples and utilities don't attract that kind of speculative morning order flow, so they don't show the pattern.
 
 **Practical read:** "buy the close, sell the open" is closer to a **growth/momentum-stock characteristic** than a market-wide law. Applying it uniformly across a diversified portfolio would be fighting the data in roughly a third of your sectors.
 
@@ -97,7 +97,7 @@ Two follow-up questions, each with its own dedicated background note since the m
 
 ![Day of week overnight return](charts/day_of_week_overnight_return.png)
 
-Splitting the overnight leg by the weekday of the close being bought, Monday is the strongest day of the week (27.4% mean annualized return across the cross-section) and Friday, the 3-day weekend gap into Monday's open, is the weakest (7.8%), both statistically significant (p < 0.001). This is a new finding for this project, not confirmed anywhere in the literature reviewed in §7, so treat it as an empirical pattern in this dataset rather than an established result. Full writeup: [`background/day_of_week_analysis.md`](background/day_of_week_analysis.md).
+Splitting the overnight leg by the weekday of the close being bought, Monday is the strongest day of the week (27.4% mean annualized return across the cross-section) and Friday, the 3-day weekend gap into Monday's open, is the weakest (7.8%), both statistically significant (p < 0.001). This is a new finding for this project, not confirmed anywhere in the literature reviewed in §8, so treat it as an empirical pattern in this dataset rather than an established result. Full writeup: [`background/day_of_week_analysis.md`](background/day_of_week_analysis.md).
 
 **Is the edge just a handful of earnings-like gap nights?** Mostly no.
 
@@ -105,7 +105,17 @@ Splitting the overnight leg by the weekday of the close being bought, Monday is 
 
 Flagging the ~1.7% of days with the most extreme overnight moves (>3 standard deviations, a proxy for earnings/news gaps since precise historical earnings-date data isn't available for free at this depth) and removing them, 27 of 30 tickers keep a statistically significant positive overnight return, and the cross-sectional mean only falls from 16.4% to 14.5% annualized. The effect is broad-based for most names, though a handful of the biggest headline numbers (TSLA, HD, BAC, GOOGL, NVDA, AVGO) lean more heavily on tail events than the average name does. Full writeup: [`background/extreme_gap_analysis.md`](background/extreme_gap_analysis.md).
 
-## 7. Is there academic basis for this?
+## 7. Has the edge decayed recently?
+
+Motivated by a Federal Reserve Bank of New York paper, ["The Disappearing Overnight Drift"](https://libertystreeteconomics.newyorkfed.org/2026/07/the-disappearing-overnight-drift/), which finds a narrow 2:00-3:00am ET window in S&P 500 futures (the European market open) averaged +3.7%/yr from 1998-2020 but has averaged close to zero since 2021, attributed to a compression in end-of-day order-imbalance dispersion, not a change in volatility.
+
+![Recency rolling return](charts/recency_rolling_return.png)
+
+**No, not at the aggregate level, though the composition underneath has shifted a lot.** This project can't isolate that specific 2-3am window (daily OHLC only, no intraday ticks), but testing the full overnight leg across the 30-ticker cross-section: the pre-2021 vs. post-2021 mean annualized return (17.97% vs. 13.24%) is not a statistically significant change (paired t = 1.38, p = 0.18), and the rolling 2-year chart above shows no visible break at 2021. 8 of 30 tickers remain individually significant post-2021 after Benjamini-Hochberg FDR correction, well above the ~1.5 expected by chance, despite a much smaller post-break sample.
+
+But aggregate stability hides real rotation: TSLA, AAPL, HD, GOOGL, NFLX, and META, the growth/attention names that drove much of the pre-2021 effect in §3, all faded sharply post-2021 (AAPL actually flips to a small, insignificant negative), while AVGO, LLY, CAT, CVX, XOM, and NEE all strengthened. This looks more like retail/market attention rotating to new names (the AI/semiconductor cycle since 2023) than a single structural mechanism fading market-wide the way the NY Fed's narrow futures-window finding describes. Full writeup, including the caveat that this project didn't independently validate 2021 as *its own* optimal break date: [`background/recency_regime_analysis.md`](background/recency_regime_analysis.md).
+
+## 8. Is there academic basis for this?
 
 Yes, this is a well-documented phenomenon, not a chart trick. Key references (full literature review with links: [`background/literature_review.md`](background/literature_review.md)):
 
@@ -114,7 +124,7 @@ Yes, this is a well-documented phenomenon, not a chart trick. Key references (fu
 - **Lou, Polk & Skouras (2019, *Journal of Financial Economics*), "A Tug of War: Overnight Versus Intraday Expected Returns"**: shows overnight and intraday returns behave like two separate return series with opposite momentum/reversal signatures, driven by different investor clienteles. §4's factor regression is a direct empirical check on this paper's own momentum framing, and finds the momentum loading itself isn't what's driving it here.
 - Follow-on market-microstructure work confirms retail and institutional order-flow imbalances are negatively correlated: wholesalers internalize retail flow specifically to offset institutional demand, mechanically producing the open-high/close-low pattern in attention-grabbing names.
 
-## 8. Bottom line
+## 9. Bottom line
 
 | Question | Answer |
 |---|---|
@@ -125,6 +135,7 @@ Yes, this is a well-documented phenomenon, not a chart trick. Key references (fu
 | Is it repackaged momentum? | **No.** Momentum-factor loading on the overnight leg is statistically zero (t=0.13); 16/30 tickers retain significant alpha after controlling for market/size/value/momentum. |
 | Does the weekday you buy matter? | **Yes.** Monday's close is the strongest (27.4% mean annualized), Friday's close (the weekend gap) the weakest (7.8%), both p<0.001. New to this project, not independently confirmed in the literature. |
 | Is it just a few earnings-like pops? | **Mostly no.** Only ~1.7% of days are extreme gaps; 27/30 tickers stay significant with those days excluded, and the mean annualized return only falls 16.4%→14.5%. |
+| Has the edge decayed recently (post-2021)? | **Not at the aggregate level** (17.97%→13.24% annualized, p=0.18, not significant; 8/30 tickers still significant after FDR). But real rotation underneath: TSLA/AAPL/HD/GOOGL/NFLX/META faded, AVGO/LLY/CAT/CVX/XOM/NEE strengthened. |
 | Is it persistent over time? | Reasonably: 0.65 cross-sectional correlation between first-half and second-half overnight returns. |
 | Is it a free lunch net of costs? | **No.** Median breakeven cost is ~4.2bps round-trip; even the best cases (TSLA, MU, NVDA) only tolerate ~13-15bps. This is a real, documented, factor-distinct statistical regularity in *where* returns show up, not a low-cost trading strategy. |
 

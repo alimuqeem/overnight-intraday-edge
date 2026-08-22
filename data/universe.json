@@ -1,0 +1,59 @@
+{
+  "Information Technology": [
+    "AAPL",
+    "MSFT",
+    "NVDA",
+    "AVGO"
+  ],
+  "Communication Services": [
+    "GOOGL",
+    "META",
+    "NFLX"
+  ],
+  "Consumer Discretionary": [
+    "AMZN",
+    "TSLA",
+    "HD"
+  ],
+  "Consumer Staples": [
+    "PG",
+    "KO",
+    "WMT"
+  ],
+  "Financials": [
+    "JPM",
+    "BAC",
+    "V"
+  ],
+  "Health Care": [
+    "UNH",
+    "JNJ",
+    "LLY"
+  ],
+  "Industrials": [
+    "CAT",
+    "HON",
+    "UPS"
+  ],
+  "Energy": [
+    "XOM",
+    "CVX"
+  ],
+  "Materials": [
+    "LIN",
+    "FCX"
+  ],
+  "Real Estate": [
+    "PLD",
+    "AMT"
+  ],
+  "Utilities": [
+    "NEE",
+    "DUK"
+  ],
+  "Benchmarks / Focus": [
+    "SPY",
+    "QQQ",
+    "MU"
+  ]
+}

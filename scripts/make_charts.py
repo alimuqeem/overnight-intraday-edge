@@ -15,6 +15,12 @@ BENCHMARK_TICKERS = {"SPY", "QQQ", "MU"}
 
 with open(REPORTS_DIR / "per_ticker_results.json") as f:
     per_ticker = json.load(f)
+with open(REPORTS_DIR / "summary.json") as f:
+    summary = json.load(f)
+
+spy_bench = summary["spy_buyhold_benchmark"]
+spy_cagr = spy_bench["cagr_pct"]
+spy_label = f"S&P 500 (SPY) buy & hold, {spy_bench['start'][:4]}–{spy_bench['end'][:4]}: {spy_cagr:.1f}%/yr CAGR"
 
 tickers = sorted(per_ticker.keys(), key=lambda t: per_ticker[t]["overnight"]["ann_return_pct"])
 overnight_ann = [per_ticker[t]["overnight"]["ann_return_pct"] for t in tickers]
@@ -28,9 +34,10 @@ ax.barh(y + 0.2, intraday_ann, height=0.4, label="Intraday (open→close)", colo
 ax.set_yticks(y)
 ax.set_yticklabels(tickers, fontsize=8)
 ax.axvline(0, color="black", linewidth=0.8)
+ax.axvline(spy_cagr, color="#d69e2e", linewidth=1.3, linestyle="--", zorder=4, label=spy_label)
 ax.set_xlabel("Annualized return (%), log-scale-equivalent daily compounding")
 ax.set_title("Overnight vs. Intraday Annualized Return by Ticker")
-ax.legend(loc="lower right")
+ax.legend(loc="lower right", fontsize=8)
 fig.tight_layout()
 fig.savefig(CHARTS_DIR / "per_ticker_overnight_vs_intraday.png", dpi=150)
 plt.close(fig)
@@ -65,9 +72,10 @@ ax.barh(y + 0.2, second_half, height=0.4, label="Second half of history", color=
 ax.set_yticks(y)
 ax.set_yticklabels(tickers, fontsize=8)
 ax.axvline(0, color="black", linewidth=0.8)
+ax.axvline(spy_cagr, color="#d69e2e", linewidth=1.3, linestyle="--", zorder=4, label=spy_label)
 ax.set_xlabel("Annualized overnight return (%)")
 ax.set_title("Overnight Edge: First Half vs. Second Half of Each Ticker's History")
-ax.legend(loc="lower right")
+ax.legend(loc="lower right", fontsize=8)
 fig.tight_layout()
 fig.savefig(CHARTS_DIR / "subperiod_consistency.png", dpi=150)
 plt.close(fig)

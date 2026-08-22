@@ -4,7 +4,13 @@ A test of whether Micron's viral "buy the close, sell the open" chart is a marke
 
 ## Why this exists
 
-A chart claimed MU is up **+138,330,342%** since 1990 if you only held it overnight (close→open), and **-99.92%** if you only held it during the trading day (open→close). That claim [checks out](report.md#appendix-the-original-mu-claim) against real data. This project asks the harder question: **does that generalize into a real, tradable edge, or is MU an outlier?**
+This started from a viral tweet claiming MU is up **+138,330,342%** since 1990 if you only held it overnight (close→open), and **-99.92%** if you only held it during the trading day (open→close).
+
+<img src="assets/inspiration_tweet.png" alt="Tweet: Micron Technology (MU) overnight returns +138,330,342% vs intraday returns -99.92%, chart since 1990" width="500">
+
+Source: [@wheelieinvestor on X](https://x.com/wheelieinvestor/status/2090827673136472542?s=48). Reproduced here for commentary/attribution purposes as the inspiration for this analysis; all rights to the original post belong to its author.
+
+That claim [checks out](report.md#appendix-the-original-mu-claim) against real data. This project asks the harder question: **does that generalize into a real, tradable edge, or is MU an outlier?**
 
 **→ [Read the full report](report.md)**
 

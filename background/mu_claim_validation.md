@@ -4,10 +4,12 @@ This is the research trail that led to this repo, preserved for reference.
 
 ## The claim
 
-A chart (screenshot, source unknown) titled "Micron Technology (MU)" plotted two log-scale equity curves from 1990 to 2026:
+A chart titled "Micron Technology (MU)" plotted two log-scale equity curves from 1990 to 2026:
 
 - **Overnight returns** (buy at close, sell at next open): **+138,330,342%**
 - **Intraday returns** (buy at open, sell at close): **-99.92%**
+
+Source: [@wheelieinvestor on X](https://x.com/wheelieinvestor/status/2090827673136472542?s=48); see [`../assets/inspiration_tweet.png`](../assets/inspiration_tweet.png) for the original post, reproduced for commentary/attribution purposes.
 
 ## Step 1: sanity-check against 1-year cached data
 

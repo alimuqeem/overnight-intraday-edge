@@ -167,6 +167,27 @@ def factor_regression(leg_dates, leg_returns, factors):
     return result
 
 
+def spy_buyhold_benchmark():
+    """Realized buy-and-hold CAGR for SPY over this project's full sample
+    window (first open to last close), used as the long-term S&P 500
+    reference line on the annualized-return charts. This is realized
+    CAGR (total_return ** (1/years) - 1), not the mean-daily-return
+    annualization used for the overnight/intraday legs elsewhere in this
+    module, so it lines up with the commonly quoted "~10%/year" long-run
+    S&P 500 figure rather than running hot the way mean-of-daily-returns
+    annualization does under volatility drag."""
+    dates, opens, closes = load_ticker("SPY")
+    years = len(dates) / TRADING_DAYS_PER_YEAR
+    total_return = closes[-1] / opens[0]
+    cagr = total_return ** (1 / years) - 1
+    return {
+        "cagr_pct": cagr * 100,
+        "start": dates[0],
+        "end": dates[-1],
+        "years": years,
+    }
+
+
 def analyze_ticker(ticker: str, factors: dict):
     dates, opens, closes = load_ticker(ticker)
     if len(dates) < 500:
@@ -275,6 +296,7 @@ def main():
         "n_tickers_total": len(per_ticker),
         "n_tickers_cross_section": len(cross_section_tickers),
         "benchmark_tickers_excluded_from_cross_section": sorted(BENCHMARK_TICKERS),
+        "spy_buyhold_benchmark": spy_buyhold_benchmark(),
         "cross_sectional_overnight_mean_bps": float(overnight_arr.mean()),
         "cross_sectional_overnight_t": float(cross_overnight_t),
         "cross_sectional_overnight_p": float(cross_overnight_p),

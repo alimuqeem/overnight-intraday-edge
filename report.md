@@ -2,7 +2,7 @@
 
 ## Why this exists
 
-This started from a viral chart claiming Micron (MU) is up **+138,330,342%** if you only held it overnight (buy at close, sell at next open) since 1990, and **-99.92%** if you only held it during the trading day (buy at open, sell at close). That specific claim [checked out](#appendix-the-original-mu-claim) against real MU price data. The question this project answers is different: **is that a Micron-specific fluke, or a real, tradable, market-wide edge?**
+This started from a [viral tweet](https://x.com/wheelieinvestor/status/2090827673136472542?s=48) ([@wheelieinvestor](https://x.com/wheelieinvestor), reproduced in [`assets/inspiration_tweet.png`](assets/inspiration_tweet.png) for commentary/attribution) claiming Micron (MU) is up **+138,330,342%** if you only held it overnight (buy at close, sell at next open) since 1990, and **-99.92%** if you only held it during the trading day (buy at open, sell at close). That specific claim [checked out](#appendix-the-original-mu-claim) against real MU price data. The question this project answers is different: **is that a Micron-specific fluke, or a real, tradable, market-wide edge?**
 
 > **Methodology v2.** This report was rebuilt after an independent institutional-style review flagged two material issues in the first pass: (1) unadjusted price data was letting ex-dividend gaps leak into the overnight leg, artificially inflating the apparent effect in high-yield sectors, and (2) the "real edge" framing hadn't been tested against known risk factors, so it could have just been repackaged momentum exposure. Both are fixed below; see the [methodology](#1-method) and [§4](#4-is-this-just-repackaged-momentum). The core numbers changed modestly; the qualitative conclusions did not.
 
@@ -29,6 +29,8 @@ Full numeric output: [`reports/summary.json`](reports/summary.json) (cross-secti
 ## 2. Headline result: the pattern is real, but it is not the MU pattern
 
 ![Per-ticker overnight vs intraday annualized return](charts/per_ticker_overnight_vs_intraday.png)
+
+The dashed gold line marks SPY's own realized buy-and-hold CAGR over this project's full sample window (1993-2026: 10.9%/yr), the standard "long-term S&P 500 average return" benchmark. Any bar that clears it is beating the market on that leg alone: most of the overnight bars do, most of the intraday bars don't, which is the clearest single visual of where the "alpha" in this whole topic actually comes from.
 
 | | Overnight leg | Intraday leg |
 |---|---:|---:|

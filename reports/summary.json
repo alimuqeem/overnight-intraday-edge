@@ -6,6 +6,12 @@
     "QQQ",
     "SPY"
   ],
+  "spy_buyhold_benchmark": {
+    "cagr_pct": 10.863662418449094,
+    "start": "1993-01-29",
+    "end": "2026-08-21",
+    "years": 33.523809523809526
+  },
   "cross_sectional_overnight_mean_bps": 5.740234884113874,
   "cross_sectional_overnight_t": 6.60924874794438,
   "cross_sectional_overnight_p": 3.039131778541089e-07,

@@ -88,4 +88,33 @@ fig.tight_layout()
 fig.savefig(CHARTS_DIR / "breakeven_cost_distribution.png", dpi=150)
 plt.close(fig)
 
+# --- Chart 5: sector-mean overnight-minus-intraday gap ---
+sectors = {}
+for t, r in per_ticker.items():
+    sectors.setdefault(r["sector"], []).append(r)
+
+sector_names, gaps = [], []
+for sector, rows in sectors.items():
+    on = np.mean([r["overnight"]["ann_return_pct"] for r in rows])
+    idy = np.mean([r["intraday"]["ann_return_pct"] for r in rows])
+    sector_names.append(f"{sector} (n={len(rows)})")
+    gaps.append(on - idy)
+
+order = np.argsort(gaps)
+sector_names = [sector_names[i] for i in order]
+gaps = [gaps[i] for i in order]
+
+fig, ax = plt.subplots(figsize=(10, 6))
+colors = ["#c53030" if g < 0 else "#2b6cb0" for g in gaps]
+ax.barh(sector_names, gaps, color=colors)
+ax.axvline(0, color="black", linewidth=0.8)
+ax.set_xlabel("Overnight-minus-Intraday annualized return gap (pp), sector mean")
+ax.set_title(
+    "The 'MU Pattern' Is a Growth/Attention-Sector Effect, Not a Market-Wide Law\n"
+    "(blue = overnight-dominant, red = intraday-dominant)"
+)
+fig.tight_layout()
+fig.savefig(CHARTS_DIR / "sector_gap.png", dpi=150)
+plt.close(fig)
+
 print("Charts written to", CHARTS_DIR)

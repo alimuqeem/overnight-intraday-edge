@@ -21,16 +21,17 @@ A chart claimed MU is up **+138,330,342%** since 1990 if you only held it overni
 
 **Bottom line:** the overnight effect is real and academically well-documented (Berkman et al. 2012; Lou, Polk & Skouras 2019), but it's a growth-stock/retail-attention characteristic concentrated in about a third of the market, not a market-wide law, and it's economically thin enough that realistic trading costs erase it for most individual names. MU is the extreme tail of a real distribution, not a template.
 
-## Reproduce it
+## Reproduce it (fully offline)
+
+`data/*.csv` (33 tickers, ~27MB, full available history per ticker) is committed to this repo, so the analysis and every chart reproduce **offline, deterministically, with no network access or API keys**:
 
 ```bash
-pip install -r requirements.txt
-python3 scripts/fetch_data.py    # pulls full daily OHLC for 33 tickers (skips ones already cached in data/)
+pip install numpy scipy matplotlib   # only the offline-analysis deps, see requirements.txt
 python3 scripts/analyze.py       # overnight/intraday decomposition + significance tests -> reports/
 python3 scripts/make_charts.py   # -> charts/
 ```
 
-`data/*.csv` is committed, so the analysis and chart steps reproduce offline/deterministically. Delete a ticker's CSV to force a fresh pull.
+`scripts/fetch_data.py` (which pulls fresh data from Yahoo Finance via `yfinance`/`curl_cffi`) is only needed to refresh the dataset or add tickers — it skips any ticker whose CSV already exists in `data/`, and is not required to reproduce the existing report.
 
 ## Layout
 

@@ -1,4 +1,10 @@
-pandas
+# Required to reproduce the analysis/charts from the committed data/*.csv (fully offline):
 numpy
 scipy
 matplotlib
+
+# Only needed if re-running scripts/fetch_data.py to refresh/extend the dataset
+# (not required for offline reproduction -- data/*.csv is already committed):
+yfinance
+curl_cffi
+pandas

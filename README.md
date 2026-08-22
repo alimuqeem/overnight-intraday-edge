@@ -48,7 +48,8 @@ scripts/make_charts.py        generates every chart in report.md
 data/                         cached daily OHLC per ticker + universe.json (sector map) + factors/
 reports/                      per_ticker_results.json, summary.json
 charts/                       generated figures
-background/                   research notes on the academic literature behind the overnight effect
+background/mu_claim_validation.md   the research trail that led to this repo
+background/literature_review.md     7-paper literature review of the overnight-return anomaly, 1986-2025, with links
 ```
 
 ## Disclaimer

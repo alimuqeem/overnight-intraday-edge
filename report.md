@@ -89,7 +89,7 @@ This is the actual answer to "is there a tradable edge": **gross of costs, yes �
 
 ## 6. Is there academic basis for this?
 
-Yes — this is a well-documented phenomenon, not a chart trick. Key references:
+Yes — this is a well-documented phenomenon, not a chart trick. Key references (full literature review with links: [`background/literature_review.md`](background/literature_review.md)):
 
 - **French & Roll (1986)** — first documented that volatility (and by extension return patterns) differs sharply between trading and non-trading hours for the aggregate market.
 - **Berkman, Koch, Tuttle & Zhang (2012, *Journal of Financial and Quantitative Analysis*), "Paying Attention: Overnight Returns and the Hidden Cost of Buying at the Open"** — the leading mechanism: retail investors queue orders overnight and buy attention-grabbing stocks right at the open, pushing the open price up; institutions fade that flow intraday, pulling the price back down by the close. This is consistent with what §3 finds — the effect concentrates in the stocks retail investors actually chase (growth/tech/consumer names), not staples and utilities.

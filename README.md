@@ -50,6 +50,7 @@ reports/                      per_ticker_results.json, summary.json
 charts/                       generated figures
 background/mu_claim_validation.md   the research trail that led to this repo
 background/literature_review.md     7-paper literature review of the overnight-return anomaly, 1986-2025, with links
+background/youtube_videos.md        popular YouTube coverage of the overnight-return effect, summarized
 ```
 
 ## Disclaimer

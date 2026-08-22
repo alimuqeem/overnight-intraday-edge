@@ -5,6 +5,15 @@ Plain yfinance / raw Yahoo chart-API requests get rate-limited (429) after a
 handful of calls. Routing yfinance through a curl_cffi session that
 impersonates Chrome's TLS fingerprint avoids that -- same fix used in
 ../vix-regime-switch-backtest.
+
+Uses auto_adjust=True so Open/High/Low/Close are all consistently adjusted
+for splits AND dividends. Without this, raw Close is dividend-adjusted by
+convention but raw Open is not (they come from different vendor fields),
+so every ex-dividend morning shows a mechanical price drop that lands
+entirely in the close->open ("overnight") leg of the decomposition this
+project runs -- a real bug found in an earlier version of this script that
+was silently inflating the apparent overnight/intraday gap for high-yield
+sectors (utilities, staples, energy) by roughly their dividend yield.
 """
 from __future__ import annotations
 
@@ -53,7 +62,7 @@ def main():
             try:
                 df = yf.download(
                     ticker, period="max", progress=False,
-                    session=SESSION, auto_adjust=False,
+                    session=SESSION, auto_adjust=True,
                 )
                 break
             except Exception as e:

@@ -31,6 +31,8 @@ Internal consistency check: `overnight_compound × intraday_compound ≈ buy_and
 
 **Conclusion: the claim is genuine, not fabricated.** The small gap between the reproduced and claimed figures is most likely explained by a different data vendor/adjustment methodology or a slightly different snapshot date — at ~16bps/day mean overnight return compounding over 9,000+ days, even a day or two of difference near the end of the series (MU rallied hard on HBM/AI news through 2026) moves the compounded total by tens of millions of percentage points. This is a property of extreme compounding, not evidence of manipulation.
 
+*Note: the figures above (+174,329,404%) used the raw, non-dividend-adjusted Yahoo chart API pull from this initial exploration. The repo's main analysis was later rebuilt on dividend+split-adjusted data after a methodology review found unadjusted prices leak ex-dividend gaps into the overnight leg (immaterial for MU specifically, which pays no meaningful dividend — see [`../report.md`](../report.md#appendix-the-original-mu-claim) for the adjusted figure of +182,299,386%, but material for the sector-level conclusions below).*
+
 ## Step 3: why does this happen? (academic literature)
 
 This overnight/intraday split is a well-documented phenomenon in market microstructure and behavioral finance, not a chart trick:
@@ -43,4 +45,4 @@ This overnight/intraday split is a well-documented phenomenon in market microstr
 
 ## Step 4: does it generalize? → led to this repo
 
-The natural follow-up question — does this hold for stocks generally, or is MU a cherry-picked outlier? — is answered by the full analysis in [`../report.md`](../report.md). Short answer: **the broad overnight effect is real and statistically significant across ~73% of a 33-name, sector-diversified universe, but MU's specific pattern (overnight all-gain, intraday net-loss) is a genuine outlier concentrated almost nowhere else in the universe tested; and the edge is thin enough that realistic transaction costs erase it for most individual names.** See the full report for the sector breakdown, significance tests, persistence check, and transaction-cost analysis.
+The natural follow-up question — does this hold for stocks generally, or is MU a cherry-picked outlier? — is answered by the full analysis in [`../report.md`](../report.md). Short answer: **the broad overnight effect is real, survives multiple-comparisons correction, and is not repackaged momentum exposure, but MU's specific pattern (overnight all-gain, intraday net-loss) is a genuine outlier concentrated almost nowhere else in the universe tested; and the edge is thin enough that realistic transaction costs erase it for most individual names.** See the full report for the sector breakdown, factor regression, significance tests, persistence check, and transaction-cost analysis.

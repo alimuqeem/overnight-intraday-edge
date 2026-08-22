@@ -8,39 +8,44 @@ A chart claimed MU is up **+138,330,342%** since 1990 if you only held it overni
 
 **→ [Read the full report](report.md)**
 
+> **v2:** rebuilt after an institutional-style methodology review. Fixed a dividend-adjustment bug that was leaking ex-dividend price drops into the overnight leg, added Newey-West HAC-robust significance testing, added a Fama-French factor regression to test whether the effect is repackaged momentum (it isn't), and excluded SPY/QQQ/MU from cross-sectional pooling to remove double-counting/selection bias. Details in [report.md](report.md#1-method).
+
 ## Headline result
 
 | Question | Answer |
 |---|---|
 | Is the MU chart's math right? | Yes — independently reproduced. |
 | Does MU's *extreme* pattern (huge overnight gain, losing intraday) generalize? | **No.** Only MU, BAC, and FCX show it out of 33 names. |
-| Is there a real, general overnight-return effect? | **Yes** — 72.7% of 33 sector-diverse large-caps show a statistically significant positive overnight return (t=5.78, p<0.0001 cross-sectionally), matching published academic literature. |
-| Does it concentrate anywhere? | **Yes** — growth/high-attention sectors (Tech, Consumer Discretionary, Comm Services, Financials). It *reverses* in Staples, Utilities, Energy, Health Care. |
+| Is there a real, general overnight-return effect? | **Yes** — 26 of 30 sector-diverse large-caps (excl. SPY/QQQ/MU) remain significant after Benjamini-Hochberg FDR correction, vs. ~1.5 expected by chance, matching published academic literature. |
+| Does it concentrate anywhere? | **Yes** — growth/high-attention sectors (Tech, Consumer Discretionary, Comm Services, Financials). It *reverses* in Staples, Energy, Utilities. |
+| Is it repackaged momentum? | **No.** Momentum-factor loading on the overnight leg is statistically zero (t=0.13) after a HAC-robust 4-factor regression; 16/30 tickers keep significant alpha net of market/size/value/momentum. |
 | Is it persistent over time? | Reasonably — 0.65 cross-sectional correlation between first-half and second-half overnight returns per ticker. |
-| Is it a free lunch net of costs? | **No.** Median breakeven round-trip cost is ~5bps; even the best cases (MU, TSLA, NVDA) only tolerate ~13-15bps before the entire multi-decade edge disappears. |
+| Is it a free lunch net of costs? | **No.** Median breakeven round-trip cost is ~4.2bps; even the best cases (TSLA, MU, NVDA) only tolerate ~13-15bps before the entire multi-decade edge disappears. |
 
-**Bottom line:** the overnight effect is real and academically well-documented (Berkman et al. 2012; Lou, Polk & Skouras 2019), but it's a growth-stock/retail-attention characteristic concentrated in about a third of the market, not a market-wide law, and it's economically thin enough that realistic trading costs erase it for most individual names. MU is the extreme tail of a real distribution, not a template.
+**Bottom line:** the overnight effect is real, academically well-documented (Berkman et al. 2012; Lou, Polk & Skouras 2019), survives multiple-comparisons correction, and is not just repackaged momentum exposure — but it's a growth-stock/retail-attention characteristic concentrated in about a third of the market, not a market-wide law, and it's economically thin enough that realistic trading costs erase it for most individual names. MU is the extreme tail of a real distribution, not a template.
 
 ## Reproduce it (fully offline)
 
-`data/*.csv` (33 tickers, ~27MB, full available history per ticker) is committed to this repo, so the analysis and every chart reproduce **offline, deterministically, with no network access or API keys**:
+`data/*.csv` (33 tickers, dividend+split adjusted, full available history per ticker) and `data/factors/ff_factors_daily.csv` (Fama-French factors) are committed to this repo, so the analysis and every chart reproduce **offline, deterministically, with no network access or API keys**:
 
 ```bash
 pip install numpy scipy matplotlib   # only the offline-analysis deps, see requirements.txt
-python3 scripts/analyze.py       # overnight/intraday decomposition + significance tests -> reports/
+python3 scripts/analyze.py       # overnight/intraday decomposition + HAC t-tests + factor regression -> reports/
 python3 scripts/make_charts.py   # -> charts/
 ```
 
-`scripts/fetch_data.py` (which pulls fresh data from Yahoo Finance via `yfinance`/`curl_cffi`) is only needed to refresh the dataset or add tickers — it skips any ticker whose CSV already exists in `data/`, and is not required to reproduce the existing report.
+`scripts/fetch_data.py` (fresh price data via `yfinance`/`curl_cffi`) and `scripts/fetch_factors.py` (fresh Fama-French factors) are only needed to refresh the dataset — both skip files that already exist and are not required to reproduce the existing report.
 
 ## Layout
 
 ```
 report.md                     full write-up (start here)
-scripts/fetch_data.py         pulls full daily OHLC for the 33-ticker universe (yfinance via curl_cffi)
-scripts/analyze.py            overnight/intraday decomposition, t-tests, breakeven cost, sub-period split
+scripts/fetch_data.py         pulls full daily OHLC for the 33-ticker universe, dividend+split adjusted
+scripts/fetch_factors.py      pulls Fama-French daily factors (Mkt-RF, SMB, HML, Momentum)
+scripts/stats_utils.py        Newey-West HAC-robust OLS/mean-test implementation
+scripts/analyze.py            overnight/intraday decomposition, HAC t-tests, breakeven cost, sub-period split, factor regression
 scripts/make_charts.py        generates every chart in report.md
-data/                         cached daily OHLC per ticker + universe.json (sector map)
+data/                         cached daily OHLC per ticker + universe.json (sector map) + factors/
 reports/                      per_ticker_results.json, summary.json
 charts/                       generated figures
 background/                   research notes on the academic literature behind the overnight effect

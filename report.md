@@ -136,6 +136,7 @@ Yes, this is a well-documented phenomenon, not a chart trick. Key references (fu
 - Sub-period "first half vs. second half" uses each ticker's own full history, so the split date differs by ticker (not a shared out-of-sample date): this tests persistence of each stock's *own* pattern, not a shared regime shift.
 - Sector labels are assigned once, present-day, and applied to each ticker's entire history: a company's sector character can drift over decades (e.g. AMZN's business mix looked very different in 1998 than today).
 - Only 2-3 tickers per sector for several sectors (Energy, Materials, Real Estate, Utilities): thin enough that a different random draw of the same sectors could shift the sector-level conclusions in §3-4, even though the overall growth-vs-defensive pattern is unlikely to fully reverse.
+- None of the above models taxes, or the real mechanics of actually placing MOC/MOO orders (exchange cutoff times, broker support, execution slippage vs. the official auction print). See [`background/execution_mechanics.md`](background/execution_mechanics.md) for what it would actually take to trade this.
 
 ## Appendix: the original MU claim
 

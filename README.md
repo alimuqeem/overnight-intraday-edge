@@ -65,8 +65,9 @@ background/literature_review.md        7-paper literature review of the overnigh
 background/youtube_videos.md           popular YouTube coverage of the overnight-return effect, summarized
 background/day_of_week_analysis.md     does it matter which weekday you buy the close on?
 background/extreme_gap_analysis.md     is the edge just a few earnings-like pops?
+background/execution_mechanics.md      how this actually works operationally: order types, broker support, risks, taxes
 ```
 
 ## Disclaimer
 
-Research only, not investment advice. See [report.md](report.md#limitations) for limitations (no taxes/execution-mechanics modeled, flat-cost assumption, survivorship within "still-large-cap-today" names).
+Research only, not investment advice. See [report.md](report.md#limitations) for limitations (no taxes/execution-mechanics modeled, flat-cost assumption, survivorship within "still-large-cap-today" names) and [background/execution_mechanics.md](background/execution_mechanics.md) for what it would actually take to trade this (order types, broker support, gap risk, taxes).

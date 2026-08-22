@@ -155,5 +155,100 @@
       "overnight_portfolio_return_pct": 0.8481811382253568,
       "spy_buyhold_return_pct": 4.107143174780603
     }
+  },
+  "realistic_cost_model": {
+    "commission_per_share": 0.0035,
+    "commission_min_per_order": 0.35,
+    "spread_bps_roundtrip": 0.75,
+    "by_starting_capital": [
+      {
+        "starting_capital": 10000,
+        "cagr_pct": -100.0,
+        "sharpe": -0.3618121363395472,
+        "max_drawdown_pct": -100.0,
+        "final_equity_multiple": 0.0,
+        "final_capital": 0.0,
+        "avg_cost_bps": 156.32925420993107,
+        "first_year_avg_cost_bps": 13.35,
+        "final_year_avg_cost_bps": 61535.843744208694
+      },
+      {
+        "starting_capital": 25000,
+        "cagr_pct": -100.0,
+        "sharpe": -0.3334842941462667,
+        "max_drawdown_pct": -100.0,
+        "final_equity_multiple": 0.0,
+        "final_capital": 0.0,
+        "avg_cost_bps": 63.42486934956129,
+        "first_year_avg_cost_bps": 5.79,
+        "final_year_avg_cost_bps": 80022.71392516412
+      },
+      {
+        "starting_capital": 50000,
+        "cagr_pct": 3.988856264461327,
+        "sharpe": 0.4225555716717096,
+        "max_drawdown_pct": -38.54155192884533,
+        "final_equity_multiple": 3.710179255393658,
+        "final_capital": 185508.9627696829,
+        "avg_cost_bps": 3.157055676479648,
+        "first_year_avg_cost_bps": 3.27,
+        "final_year_avg_cost_bps": 1.8884471428630785
+      },
+      {
+        "starting_capital": 100000,
+        "cagr_pct": 8.432266851053116,
+        "sharpe": 0.817580009416455,
+        "max_drawdown_pct": -31.585638591542764,
+        "final_equity_multiple": 15.083724190776847,
+        "final_capital": 1508372.4190776846,
+        "avg_cost_bps": 1.4962718193507332,
+        "first_year_avg_cost_bps": 2.01,
+        "final_year_avg_cost_bps": 1.2166666666666668
+      },
+      {
+        "starting_capital": 250000,
+        "cagr_pct": 9.1949588940061,
+        "sharpe": 0.8837781156849855,
+        "max_drawdown_pct": -30.141855094423885,
+        "final_equity_multiple": 19.07852187332027,
+        "final_capital": 4769630.468330068,
+        "avg_cost_bps": 1.218047544469616,
+        "first_year_avg_cost_bps": 1.254,
+        "final_year_avg_cost_bps": 1.2166666666666668
+      },
+      {
+        "starting_capital": 500000,
+        "cagr_pct": 9.198757655110468,
+        "sharpe": 0.8841068001351667,
+        "max_drawdown_pct": -30.141855094423896,
+        "final_equity_multiple": 19.100782211394254,
+        "final_capital": 9550391.105697127,
+        "avg_cost_bps": 1.2166666666666668,
+        "first_year_avg_cost_bps": 1.2166666666666668,
+        "final_year_avg_cost_bps": 1.2166666666666668
+      },
+      {
+        "starting_capital": 1000000,
+        "cagr_pct": 9.198757655110468,
+        "sharpe": 0.8841068001351667,
+        "max_drawdown_pct": -30.141855094423896,
+        "final_equity_multiple": 19.100782211394254,
+        "final_capital": 19100782.211394254,
+        "avg_cost_bps": 1.2166666666666668,
+        "first_year_avg_cost_bps": 1.2166666666666668,
+        "final_year_avg_cost_bps": 1.2166666666666668
+      },
+      {
+        "starting_capital": 2000000,
+        "cagr_pct": 9.198757655110468,
+        "sharpe": 0.8841068001351667,
+        "max_drawdown_pct": -30.141855094423896,
+        "final_equity_multiple": 19.100782211394254,
+        "final_capital": 38201564.42278851,
+        "avg_cost_bps": 1.2166666666666668,
+        "first_year_avg_cost_bps": 1.2166666666666668,
+        "final_year_avg_cost_bps": 1.2166666666666668
+      }
+    ]
   }
 }

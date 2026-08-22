@@ -339,4 +339,65 @@ if pb_path.exists() and pb_ledger_path.exists():
     fig.savefig(CHARTS_DIR / "portfolio_cost_sensitivity.png", dpi=150)
     plt.close(fig)
 
+    # Realistic (IBKR Pro fee schedule) cost-by-capital results
+    rc_ledger_path = REPORTS_DIR / "portfolio_realistic_cost_ledger.csv"
+    if rc_ledger_path.exists() and "realistic_cost_model" in pb:
+        rc = pb["realistic_cost_model"]["by_starting_capital"]
+        capitals = [r["starting_capital"] for r in rc]
+        cagrs = [r["cagr_pct"] for r in rc]
+        sharpes = [r["sharpe"] for r in rc]
+
+        fig, ax1 = plt.subplots(figsize=(9, 6))
+        colors = ["#c53030" if c < 0 else "#38a169" for c in cagrs]
+        x = np.arange(len(capitals))
+        ax1.bar(x, cagrs, color=colors, alpha=0.85, label="CAGR (%)")
+        ax1.axhline(0, color="black", linewidth=0.8)
+        ax1.set_xticks(x)
+        ax1.set_xticklabels([f"${c:,.0f}" for c in capitals], rotation=45, ha="right")
+        ax1.set_ylabel("CAGR (%)")
+        ax1.set_xlabel("Starting capital (equal-weight across all 30 names)")
+        ax1.set_title(
+            "Realistic Cost Model (IBKR Pro fee schedule): CAGR by Starting Account Size\n"
+            "Small accounts get wiped out by the 35c/order minimum; cost converges above ~250k"
+        )
+
+        ax2 = ax1.twinx()
+        ax2.plot(x, sharpes, color="#2b6cb0", marker="o", linewidth=1.5, label="Sharpe ratio")
+        ax2.set_ylabel("Sharpe ratio", color="#2b6cb0")
+        ax2.tick_params(axis="y", labelcolor="#2b6cb0")
+
+        lines1, labels1 = ax1.get_legend_handles_labels()
+        lines2, labels2 = ax2.get_legend_handles_labels()
+        ax1.legend(lines1 + lines2, labels1 + labels2, loc="lower right", fontsize=8)
+        fig.tight_layout()
+        fig.savefig(CHARTS_DIR / "portfolio_realistic_cost_by_capital.png", dpi=150)
+        plt.close(fig)
+
+        # Equity curves for a few representative capital levels
+        with open(rc_ledger_path) as f:
+            rc_rows = list(_csv.DictReader(f))
+        rc_dates = [datetime.strptime(r["date"], "%Y-%m-%d") for r in rc_rows]
+        representative = [25_000, 50_000, 100_000, 250_000]
+        fig, ax = plt.subplots(figsize=(11, 6.5))
+        colors_map = {25_000: "#c53030", 50_000: "#dd6b20", 100_000: "#2b6cb0", 250_000: "#38a169"}
+        for cap in representative:
+            col = f"equity_{cap}"
+            if col not in rc_rows[0]:
+                continue
+            vals = np.array([float(r[col]) for r in rc_rows])
+            vals_plot = np.clip(vals, 1e-4, None)  # avoid log(0) for wiped-out paths
+            ax.plot(rc_dates, vals_plot, label=f"${cap:,.0f} start", color=colors_map.get(cap, "#805ad5"), linewidth=1.2)
+        ax.set_yscale("log")
+        ax.axhline(1.0, color="grey", linewidth=0.6)
+        ax.set_ylabel("Equity multiple of starting capital (log scale)")
+        ax.set_title("Realistic-Cost Overnight Portfolio: Equity Path by Starting Capital\n(IBKR Pro fee schedule, path-dependent cost)")
+        ax.legend(loc="upper left", fontsize=9)
+        ax.grid(True, which="both", alpha=0.25)
+        ax.xaxis.set_major_locator(mdates.YearLocator(3))
+        ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
+        fig.autofmt_xdate(rotation=45)
+        fig.tight_layout()
+        fig.savefig(CHARTS_DIR / "portfolio_realistic_cost_equity_paths.png", dpi=150)
+        plt.close(fig)
+
 print("Charts written to", CHARTS_DIR)

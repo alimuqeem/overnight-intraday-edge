@@ -18,8 +18,20 @@ trading day (no survivorship-adjusted backfill, no look-ahead), so the
 number of names held grows from a handful in 1993 to all 30 by the
 2010s as later IPOs (TSLA, META, AVGO, V, ...) become available.
 
-Cost convention (5bps round-trip) matches ../vix-regime-switch-backtest
-for comparability. Unlike that sibling repo, idle cash is NOT modeled as
+Two cost models are run:
+  - A flat 5bps round-trip, matching ../vix-regime-switch-backtest for
+    comparability (see run_backtest / COST_BPS below).
+  - A realistic, position-size-dependent model using IBKR Pro's actual
+    tiered commission ($0.0035/share, $0.35/order minimum) plus a flat
+    0.75bps round-trip spread assumption for this project's mega-cap
+    universe, run across a grid of starting account sizes (see
+    run_backtest_realistic_cost). The $0.35 order minimum dominates at
+    small position sizes and fades to near-zero at large ones, so cost
+    here is a function of how much capital is allocated per name each
+    day, not a fixed number -- see background/execution_mechanics.md for
+    the fee-schedule research this is built on.
+
+Unlike that sibling repo, idle cash is NOT modeled as
 earning a T-bill yield: live T-bill data proved unreliable to fetch in
 this environment (Yahoo's ^IRX endpoint stayed rate-limited across
 repeated attempts with backoff; FRED was unreachable from this sandbox).
@@ -50,6 +62,13 @@ REPORTS_DIR.mkdir(exist_ok=True)
 
 TRADING_DAYS_PER_YEAR = 252
 COST_BPS = 5.0
+
+# Realistic cost model, from background/execution_mechanics.md's research
+# into actual IBKR Pro / broker fee schedules (not a modeling assumption).
+IBKR_COMMISSION_PER_SHARE = 0.0035
+IBKR_COMMISSION_MIN = 0.35
+SPREAD_BPS_ROUNDTRIP = 0.75  # midpoint of the ~0.5-1bps range found for this mega-cap universe
+STARTING_CAPITAL_GRID = [10_000, 25_000, 50_000, 100_000, 250_000, 500_000, 1_000_000, 2_000_000]
 
 CRISIS_WINDOWS = {
     "2008-09 Global Financial Crisis": ("2008-09-01", "2009-03-31"),
@@ -139,6 +158,80 @@ def run_backtest(tickers_ohlc: dict, dates: list, cost_bps: float = COST_BPS):
     return overnight_ret, overnight_equity, intraday_ret, intraday_equity, n_members
 
 
+ASSUMED_NOMINAL_SHARE_PRICE = 150.0  # see run_backtest_realistic_cost docstring
+
+
+def run_backtest_realistic_cost(
+    tickers_ohlc: dict,
+    dates: list,
+    starting_capital: float,
+    spread_bps: float = SPREAD_BPS_ROUNDTRIP,
+    commission_per_share: float = IBKR_COMMISSION_PER_SHARE,
+    commission_min: float = IBKR_COMMISSION_MIN,
+    assumed_share_price: float = ASSUMED_NOMINAL_SHARE_PRICE,
+):
+    """Same overnight-only strategy as run_backtest, but cost is computed
+    per name per day from actual dollar position size (current portfolio
+    equity / number of names held that day) and the real IBKR Pro
+    commission formula, instead of a flat bps assumption. Cost is
+    therefore path-dependent: it shrinks in bps terms as the portfolio
+    compounds (or grows, in a losing stretch as positions shrink), which
+    a flat-bps backtest cannot capture.
+
+    Share count for the per-share commission uses a fixed assumed nominal
+    price (default $150), not each ticker's actual historical price. This
+    project's price data is dividend+split adjusted (see fetch_data.py),
+    which is correct for computing returns but wrong for computing a
+    historical share count: adjusted prices are scaled down to reflect
+    ALL splits that happened between that date and today, so a stock
+    trading at a real nominal $50 in 1993 that has since split several
+    times shows up as a few adjusted dollars, wildly overstating the
+    number of shares a 1993 trade would actually have transacted (an
+    earlier version of this function did exactly that, before the bug was
+    caught: it produced 25-30bps "realistic" costs, 5-6x too high, purely
+    from this artifact). A flat assumed price avoids needing a second,
+    unadjusted price dataset while still capturing the real dynamic this
+    section exists to show: the $0.35 per-order minimum dominates at
+    small notional regardless of which specific stock or price level is
+    involved, and that dynamic is not sensitive to the exact price
+    assumed within a normal large-cap range ($50-300 spans a $0.23-1.4bps
+    round-trip commission once past the minimum, a small effect next to
+    the minimum-driven cost at low notional)."""
+    n = len(dates)
+    equity_dollars = np.zeros(n)
+    equity_dollars[0] = starting_capital
+    overnight_ret = np.zeros(n)
+    n_members = np.zeros(n, dtype=int)
+    avg_cost_bps = np.zeros(n)
+
+    for i in range(1, n):
+        d, d_prev = dates[i], dates[i - 1]
+        current_capital = equity_dollars[i - 1]
+        members = []
+        for ticker, ohlc in tickers_ohlc.items():
+            if d in ohlc and d_prev in ohlc:
+                open_t, _ = ohlc[d]
+                _, close_prev = ohlc[d_prev]
+                members.append((close_prev, open_t))
+        n_members[i] = len(members)
+
+        if members and current_capital > 0:
+            notional_per_name = current_capital / len(members)
+            shares = notional_per_name / assumed_share_price
+            commission_side = max(shares * commission_per_share, commission_min)
+            commission_rt_bps = commission_side * 2 / notional_per_name * 10000
+            total_cost_bps = commission_rt_bps + spread_bps
+
+            net_legs = [(open_t / close_prev - 1.0) - total_cost_bps / 10000 for close_prev, open_t in members]
+            overnight_ret[i] = np.mean(net_legs)
+            avg_cost_bps[i] = total_cost_bps
+
+        equity_dollars[i] = max(equity_dollars[i - 1] * (1 + overnight_ret[i]), 0.0)
+
+    equity_normalized = equity_dollars / starting_capital
+    return overnight_ret, equity_normalized, equity_dollars, n_members, avg_cost_bps
+
+
 def find_breakeven_bps(tickers_ohlc: dict, dates: list, lo=0.0, hi=20.0, tol=1e-4):
     """Binary-search the round-trip cost (bps) that drives the overnight
     portfolio's final equity to exactly 1.0 (breakeven)."""
@@ -225,6 +318,30 @@ def main():
     breakeven_bps = find_breakeven_bps(tickers_ohlc, dates)
     print(f"  Portfolio breakeven round-trip cost: {breakeven_bps:.2f}bps" if breakeven_bps is not None else "  Not profitable even at 0bps cost")
 
+    print(f"\nRunning realistic (IBKR Pro fee schedule + {SPREAD_BPS_ROUNDTRIP}bps spread) cost model across starting capital levels...")
+    realistic_by_capital = []
+    realistic_equity_curves = {}
+    for capital in STARTING_CAPITAL_GRID:
+        r, e, e_dollars, members_rc, cost_bps_series = run_backtest_realistic_cost(tickers_ohlc, dates, capital)
+        m = perf_metrics(r[1:], e[1:])
+        avg_cost = float(cost_bps_series[cost_bps_series > 0].mean())
+        first_cost = float(cost_bps_series[cost_bps_series > 0][0])
+        last_cost = float(cost_bps_series[cost_bps_series > 0][-1])
+        realistic_by_capital.append({
+            "starting_capital": capital,
+            "cagr_pct": m["cagr_pct"],
+            "sharpe": m["sharpe"],
+            "max_drawdown_pct": m["max_drawdown_pct"],
+            "final_equity_multiple": m["final_equity"],
+            "final_capital": float(e_dollars[-1]),
+            "avg_cost_bps": avg_cost,
+            "first_year_avg_cost_bps": first_cost,
+            "final_year_avg_cost_bps": last_cost,
+        })
+        realistic_equity_curves[str(capital)] = e.tolist()
+        print(f"  Start ${capital:>9,}: CAGR {m['cagr_pct']:7.2f}%  Sharpe {m['sharpe']:5.2f}  "
+              f"MaxDD {m['max_drawdown_pct']:7.2f}%  avg cost {avg_cost:.2f}bps  End ${e_dollars[-1]:>14,.0f}")
+
     results = {
         "period_start": dates[0],
         "period_end": dates[-1],
@@ -240,9 +357,24 @@ def main():
         "overnight_alpha_annualized_pct": float(alpha_annual_pct),
         "cost_sensitivity": cost_sensitivity,
         "crisis_windows": crises,
+        "realistic_cost_model": {
+            "commission_per_share": IBKR_COMMISSION_PER_SHARE,
+            "commission_min_per_order": IBKR_COMMISSION_MIN,
+            "spread_bps_roundtrip": SPREAD_BPS_ROUNDTRIP,
+            "by_starting_capital": realistic_by_capital,
+        },
     }
     with open(REPORTS_DIR / "portfolio_backtest_results.json", "w") as f:
         json.dump(results, f, indent=2, default=str)
+
+    # Realistic-cost equity curves, one column per starting capital level
+    with open(REPORTS_DIR / "portfolio_realistic_cost_ledger.csv", "w", newline="") as f:
+        writer = csv.writer(f)
+        header = ["date"] + [f"equity_{c}" for c in STARTING_CAPITAL_GRID]
+        writer.writerow(header)
+        for i in range(len(dates)):
+            row = [dates[i]] + [realistic_equity_curves[str(c)][i] for c in STARTING_CAPITAL_GRID]
+            writer.writerow(row)
 
     # Save the daily ledger for transparency/reproducibility
     with open(REPORTS_DIR / "portfolio_backtest_ledger.csv", "w", newline="") as f:
@@ -255,6 +387,7 @@ def main():
 
     print(f"\nSaved -> {REPORTS_DIR / 'portfolio_backtest_results.json'}")
     print(f"Saved -> {REPORTS_DIR / 'portfolio_backtest_ledger.csv'}")
+    print(f"Saved -> {REPORTS_DIR / 'portfolio_realistic_cost_ledger.csv'}")
 
 
 if __name__ == "__main__":

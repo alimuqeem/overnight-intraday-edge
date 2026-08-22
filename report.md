@@ -136,9 +136,26 @@ Everything above is descriptive: does the pattern exist, is it significant, does
 
 ![Portfolio cost sensitivity](charts/portfolio_cost_sensitivity.png)
 
-Below that breakeven the picture is genuinely attractive (0bps cost: 12.60% CAGR, beating SPY's 10.87%, at little more than half SPY's volatility), so the entire practical question comes down to whether an implementation can execute below ~4.7bps round-trip, plausible for the most liquid names via MOC/MOO at a broker like Interactive Brokers (see [`background/execution_mechanics.md`](background/execution_mechanics.md)), but not guaranteed and not independently verified here.
+Below that breakeven the picture is genuinely attractive (0bps cost: 12.60% CAGR, beating SPY's 10.87%, at little more than half SPY's volatility), so the entire practical question comes down to whether an implementation can execute below ~4.7bps round-trip, plausible for the most liquid names via MOC/MOO at a broker like Interactive Brokers (see [`background/execution_mechanics.md`](background/execution_mechanics.md)).
 
-**Crisis behavior is not uniformly protective.** The overnight portfolio meaningfully outperformed SPY during the 2008-09 GFC (-17.6% vs. -36.6%), the 2010 Flash Crash, and the 2018 Q4 selloff, but meaningfully underperformed during the 2020 COVID crash (-20.1% vs. -13.6%) and the 2022 rate-hike bear market (-24.4% vs. -18.2%), the two most recent major drawdowns. Overall beta vs. SPY is 0.32 (expected, given it's invested only half of each day), but annualized alpha is **-3.97%/yr** at the 5bps cost this section uses, negative even after adjusting for that lower beta exposure.
+**Rebuilding the cost model with IBKR Pro's actual fee schedule instead of the flat 5bps assumption answers that question directly, and it depends entirely on account size.** IBKR Pro charges $0.0035/share with a $0.35 per-order minimum; that minimum is a large fraction of a small trade and negligible on a large one, so cost isn't one number, it's a function of capital.
+
+![Realistic cost by capital](charts/portfolio_realistic_cost_by_capital.png)
+
+| Starting capital | CAGR | Sharpe | Outcome |
+|---|---:|---:|---|
+| $10,000-$25,000 | **-100%** | -0.3 to -0.4 | Wiped out by ~2004 |
+| $50,000 | 3.99% | 0.42 | Marginal, survives |
+| $100,000 | 8.43% | 0.82 | Solid |
+| $250,000+ | **9.20%** | **0.88** | Converged, beats SPY's Sharpe |
+
+Below roughly $30-40k, the strategy is not just unprofitable but **ruinous**: small positions mean the $0.35 minimum alone costs 15-20+bps round-trip, and losses compound into smaller positions, which raises the effective cost further, a reflexive spiral to total capital destruction that a flat-bps model cannot represent (the $25,000 equity path below is essentially gone by 2004). At $100k and above, cost converges to ~1.2bps round-trip, comfortably under the 4.71bps breakeven, and CAGR converges to 9.20%, just under SPY's, but at roughly half the volatility and a better Sharpe ratio (0.88 vs. SPY's 0.65).
+
+![Realistic cost equity paths](charts/portfolio_realistic_cost_equity_paths.png)
+
+**This revises the flat-5bps result above rather than replacing it.** The flat 5bps assumption is too pessimistic for a realistically-capitalized account (real cost converges far below it) and far too optimistic for a small one (real cost can exceed 20bps and cause total ruin, which no flat number can show). Full methodology, including a bug in an earlier version of this calculation that was caught and fixed (using split-adjusted historical prices to estimate historical share counts, which overstated 1990s-era commissions by 5-6x), is in [`background/portfolio_backtest.md`](background/portfolio_backtest.md).
+
+**Crisis behavior (flat-5bps version) is not uniformly protective.** The overnight portfolio meaningfully outperformed SPY during the 2008-09 GFC (-17.6% vs. -36.6%), the 2010 Flash Crash, and the 2018 Q4 selloff, but meaningfully underperformed during the 2020 COVID crash (-20.1% vs. -13.6%) and the 2022 rate-hike bear market (-24.4% vs. -18.2%), the two most recent major drawdowns. Overall beta vs. SPY is 0.32 (expected, given it's invested only half of each day), but annualized alpha is **-3.97%/yr** at the 5bps cost this section uses, negative even after adjusting for that lower beta exposure.
 
 Important limitation carried into this section: **idle cash yield is not modeled** (live T-bill data proved unreliable to fetch in this environment), which understates both simulated portfolios' real-world return relative to SPY buy & hold, since SPY captures 100% of every trading day while these strategies are only ever invested for half of each day-night cycle. Full method, all caveats, and the exact numbers behind every claim above: [`background/portfolio_backtest.md`](background/portfolio_backtest.md).
 
@@ -156,7 +173,7 @@ Important limitation carried into this section: **idle cash yield is not modeled
 | Has the edge decayed recently (post-2021)? | **Not at the aggregate level** (17.97%→13.24% annualized, p=0.18, not significant; 8/30 tickers still significant after FDR). But real rotation underneath: TSLA/AAPL/HD/GOOGL/NFLX/META faded, AVGO/LLY/CAT/CVX/XOM/NEE strengthened. |
 | Is it persistent over time? | Reasonably: 0.65 cross-sectional correlation between first-half and second-half overnight returns. |
 | Is it a free lunch net of costs, per-ticker? | **No.** Median breakeven cost is ~4.2bps round-trip; even the best cases (TSLA, MU, NVDA) only tolerate ~13-15bps. |
-| **Would a real, diversified, cost-aware portfolio actually have made money?** | **No, not at a realistic 5bps cost** (portfolio breakeven: 4.71bps). CAGR -0.73% vs. SPY's 10.87% over 1993-2026; profitable and SPY-beating only below ~4.7bps. This is the single most important caveat in the whole report: the effect is statistically real, but it is economically thin enough that an honest portfolio simulation, not just a per-ticker cost estimate, shows it losing money at standard institutional cost assumptions. |
+| **Would a real, diversified, cost-aware portfolio actually have made money?** | **It depends entirely on account size.** At a flat 5bps assumption, no (CAGR -0.73% vs. SPY's 10.87%). Rebuilt with IBKR Pro's real fee schedule: **ruinous below ~$30-40k** (total capital loss by ~2004, a reflexive small-position death spiral), **marginal at $50k** (3.99% CAGR), **solidly profitable at $100k+** (CAGR converges to 9.20%, Sharpe 0.88, beating SPY's 0.65 Sharpe at roughly half the volatility). This is the single most important nuance in the whole report: the effect is statistically real everywhere, but whether it's tradeable is a threshold in dollars, not a yes/no answer. |
 
 ## Limitations
 

@@ -184,4 +184,56 @@ fig.tight_layout()
 fig.savefig(CHARTS_DIR / "alpha_vs_momentum_loading.png", dpi=150)
 plt.close(fig)
 
+# --- Chart 8: day-of-week overnight return (which weekday's close to buy) ---
+dow_path = REPORTS_DIR / "day_of_week_results.json"
+if dow_path.exists():
+    with open(dow_path) as f:
+        dow = json.load(f)
+    weekday_names = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+    weekday_means = [dow["summary"]["mean_ann_return_by_weekday_pct"][d] for d in weekday_names]
+
+    fig, ax = plt.subplots(figsize=(8, 5.5))
+    colors = ["#2b6cb0"] * 4 + ["#c53030"]  # Friday (weekend gap) highlighted
+    ax.bar(weekday_names, weekday_means, color=colors)
+    ax.axhline(spy_cagr, color="#d69e2e", linewidth=1.3, linestyle="--", zorder=4, label=spy_label)
+    ax.set_ylabel("Mean overnight annualized return across 30 tickers (%)")
+    ax.set_title(
+        "Which Weekday's Close Is Best to Buy?\n"
+        "(red = Friday close -> Monday open, the 3-day weekend gap)"
+    )
+    ax.legend(fontsize=8)
+    fig.tight_layout()
+    fig.savefig(CHARTS_DIR / "day_of_week_overnight_return.png", dpi=150)
+    plt.close(fig)
+
+# --- Chart 9: extreme-gap decomposition (all days vs. ordinary days only) ---
+eg_path = REPORTS_DIR / "extreme_gap_results.json"
+if eg_path.exists():
+    with open(eg_path) as f:
+        eg = json.load(f)
+    eg_per_ticker = eg["per_ticker"]
+    eg_cross = [t for t in eg_per_ticker if t not in BENCHMARK_TICKERS]
+    eg_cross_sorted = sorted(eg_cross, key=lambda t: eg_per_ticker[t]["all_days_ann_return_pct"])
+
+    all_ann = [eg_per_ticker[t]["all_days_ann_return_pct"] for t in eg_cross_sorted]
+    ordinary_ann = [eg_per_ticker[t]["ordinary_days_ann_return_pct"] for t in eg_cross_sorted]
+
+    fig, ax = plt.subplots(figsize=(11, 9))
+    y2 = np.arange(len(eg_cross_sorted))
+    ax.barh(y2 - 0.2, all_ann, height=0.4, label="All days", color="#2b6cb0")
+    ax.barh(y2 + 0.2, ordinary_ann, height=0.4, label=f"Excluding top ~{eg['summary']['mean_pct_days_extreme']:.1f}% extreme-gap days", color="#38a169")
+    ax.set_yticks(y2)
+    ax.set_yticklabels(eg_cross_sorted, fontsize=8)
+    ax.axvline(0, color="black", linewidth=0.8)
+    ax.axvline(spy_cagr, color="#d69e2e", linewidth=1.3, linestyle="--", zorder=4, label=spy_label)
+    ax.set_xlabel("Annualized overnight return (%)")
+    ax.set_title(
+        "Overnight Edge: All Days vs. Excluding Extreme Gap Days (>3 std dev)\n"
+        "(proxy for earnings/news-driven gaps, not a precise earnings-date match)"
+    )
+    ax.legend(loc="lower right", fontsize=8)
+    fig.tight_layout()
+    fig.savefig(CHARTS_DIR / "extreme_gap_decomposition.png", dpi=150)
+    plt.close(fig)
+
 print("Charts written to", CHARTS_DIR)

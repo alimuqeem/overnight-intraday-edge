@@ -277,4 +277,66 @@ if recency_path.exists():
     fig.savefig(CHARTS_DIR / "recency_rolling_return.png", dpi=150)
     plt.close(fig)
 
+# --- Chart 11: portfolio backtest equity curve + drawdown ---
+pb_path = REPORTS_DIR / "portfolio_backtest_results.json"
+pb_ledger_path = REPORTS_DIR / "portfolio_backtest_ledger.csv"
+if pb_path.exists() and pb_ledger_path.exists():
+    import csv as _csv
+    with open(pb_ledger_path) as f:
+        ledger_rows = list(_csv.DictReader(f))
+    pb_dates = [datetime.strptime(r["date"], "%Y-%m-%d") for r in ledger_rows]
+    on_equity = np.array([float(r["overnight_equity"]) for r in ledger_rows])
+    id_equity = np.array([float(r["intraday_equity"]) for r in ledger_rows])
+    spy_equity = np.array([float(r["spy_equity"]) for r in ledger_rows])
+
+    fig, axes = plt.subplots(2, 1, figsize=(11, 9), sharex=True, gridspec_kw={"height_ratios": [2.2, 1.2]})
+
+    ax = axes[0]
+    ax.plot(pb_dates, on_equity, label="Overnight-only portfolio (5bps cost)", color="#2b6cb0", linewidth=1.3)
+    ax.plot(pb_dates, id_equity, label="Intraday-only portfolio (5bps cost)", color="#38a169", linewidth=1.1)
+    ax.plot(pb_dates, spy_equity, label="SPY buy & hold", color="#57606a", linewidth=1.1)
+    ax.set_yscale("log")
+    ax.set_ylabel("Growth of $1 (log scale)")
+    ax.set_title("Portfolio Backtest: Equal-Weight 30-Ticker Overnight vs. Intraday vs. SPY Buy & Hold")
+    ax.legend(loc="upper left", fontsize=9)
+    ax.grid(True, which="both", alpha=0.25)
+
+    ax = axes[1]
+    cum_max_on = np.maximum.accumulate(on_equity)
+    dd_on = on_equity / cum_max_on - 1
+    cum_max_spy = np.maximum.accumulate(spy_equity)
+    dd_spy = spy_equity / cum_max_spy - 1
+    ax.fill_between(pb_dates, dd_on * 100, 0, color="#2b6cb0", alpha=0.5, label="Overnight-only drawdown")
+    ax.plot(pb_dates, dd_spy * 100, color="#57606a", linewidth=0.9, label="SPY buy & hold drawdown")
+    ax.set_ylabel("Drawdown (%)")
+    ax.legend(loc="lower left", fontsize=8)
+    ax.grid(True, alpha=0.25)
+    ax.xaxis.set_major_locator(mdates.YearLocator(3))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
+    fig.autofmt_xdate(rotation=45)
+
+    fig.tight_layout()
+    fig.savefig(CHARTS_DIR / "portfolio_backtest_equity.png", dpi=150)
+    plt.close(fig)
+
+    # Cost sensitivity chart
+    with open(pb_path) as f:
+        pb = json.load(f)
+    cs = pb["cost_sensitivity"]
+    bps_vals = [r["cost_bps"] for r in cs]
+    cagr_vals = [r["cagr_pct"] for r in cs]
+
+    fig, ax = plt.subplots(figsize=(8, 5.5))
+    colors = ["#38a169" if c >= 0 else "#c53030" for c in cagr_vals]
+    ax.bar([str(b) for b in bps_vals], cagr_vals, color=colors)
+    ax.axhline(0, color="black", linewidth=0.8)
+    breakeven = pb.get("portfolio_breakeven_cost_bps")
+    if breakeven is not None:
+        ax.set_title(f"Portfolio Overnight Strategy: CAGR vs. Round-Trip Cost\n(breakeven = {breakeven:.2f}bps; sibling-repo convention is 5bps)")
+    ax.set_xlabel("Round-trip cost assumption (bps)")
+    ax.set_ylabel("CAGR (%)")
+    fig.tight_layout()
+    fig.savefig(CHARTS_DIR / "portfolio_cost_sensitivity.png", dpi=150)
+    plt.close(fig)
+
 print("Charts written to", CHARTS_DIR)

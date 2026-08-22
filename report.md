@@ -124,7 +124,25 @@ Yes, this is a well-documented phenomenon, not a chart trick. Key references (fu
 - **Lou, Polk & Skouras (2019, *Journal of Financial Economics*), "A Tug of War: Overnight Versus Intraday Expected Returns"**: shows overnight and intraday returns behave like two separate return series with opposite momentum/reversal signatures, driven by different investor clienteles. §4's factor regression is a direct empirical check on this paper's own momentum framing, and finds the momentum loading itself isn't what's driving it here.
 - Follow-on market-microstructure work confirms retail and institutional order-flow imbalances are negatively correlated: wholesalers internalize retail flow specifically to offset institutional demand, mechanically producing the open-high/close-low pattern in attention-grabbing names.
 
-## 9. Bottom line
+## 9. Is this actually tradeable? A full portfolio backtest
+
+Everything above is descriptive: does the pattern exist, is it significant, does it survive controls. This section is different: a simulated, day-by-day equal-weight portfolio of all 30 cross-section tickers, bought at close and sold at next open (and, for contrast, the intraday-only version), net of a 5bps round-trip cost, run against real SPY buy & hold over the full 1993-2026 window.
+
+![Portfolio backtest equity curve](charts/portfolio_backtest_equity.png)
+
+**No, not at a realistic cost.** At 5bps round-trip, matching the convention used in this project's sibling VIX-regime-switch backtest, the diversified overnight-only portfolio loses money: CAGR -0.73%, Sharpe -0.02, a max drawdown of -52.83% that it stays underwater from for roughly 26 of the 33 years tested. It is still clearly the better of the two legs (intraday-only loses far more: CAGR -5.19%, growth of $1 to just $0.17), consistent with everything else in this report, but "less bad" is not "profitable."
+
+**Why this is worse than the per-ticker breakeven analysis in §5 suggested:** that analysis found a median single-ticker breakeven of ~4.2bps and a cross-sectional mean overnight return of 5.74bps/day, numbers unweighted across each ticker's own full history. A real portfolio's daily return is instead weighted by whichever tickers actually existed that day, and the early decades of this backtest (1993-2010) held far fewer names and specifically lacked the growth/semiconductor names (NVDA, META, TSLA, AVGO) that carry the strongest individual overnight edge. The portfolio's own solved breakeven cost is **4.71bps**, close to but still below the 5bps this project treats as realistic.
+
+![Portfolio cost sensitivity](charts/portfolio_cost_sensitivity.png)
+
+Below that breakeven the picture is genuinely attractive (0bps cost: 12.60% CAGR, beating SPY's 10.87%, at little more than half SPY's volatility), so the entire practical question comes down to whether an implementation can execute below ~4.7bps round-trip, plausible for the most liquid names via MOC/MOO at a broker like Interactive Brokers (see [`background/execution_mechanics.md`](background/execution_mechanics.md)), but not guaranteed and not independently verified here.
+
+**Crisis behavior is not uniformly protective.** The overnight portfolio meaningfully outperformed SPY during the 2008-09 GFC (-17.6% vs. -36.6%), the 2010 Flash Crash, and the 2018 Q4 selloff, but meaningfully underperformed during the 2020 COVID crash (-20.1% vs. -13.6%) and the 2022 rate-hike bear market (-24.4% vs. -18.2%), the two most recent major drawdowns. Overall beta vs. SPY is 0.32 (expected, given it's invested only half of each day), but annualized alpha is **-3.97%/yr** at the 5bps cost this section uses, negative even after adjusting for that lower beta exposure.
+
+Important limitation carried into this section: **idle cash yield is not modeled** (live T-bill data proved unreliable to fetch in this environment), which understates both simulated portfolios' real-world return relative to SPY buy & hold, since SPY captures 100% of every trading day while these strategies are only ever invested for half of each day-night cycle. Full method, all caveats, and the exact numbers behind every claim above: [`background/portfolio_backtest.md`](background/portfolio_backtest.md).
+
+## 10. Bottom line
 
 | Question | Answer |
 |---|---|
@@ -137,7 +155,8 @@ Yes, this is a well-documented phenomenon, not a chart trick. Key references (fu
 | Is it just a few earnings-like pops? | **Mostly no.** Only ~1.7% of days are extreme gaps; 27/30 tickers stay significant with those days excluded, and the mean annualized return only falls 16.4%→14.5%. |
 | Has the edge decayed recently (post-2021)? | **Not at the aggregate level** (17.97%→13.24% annualized, p=0.18, not significant; 8/30 tickers still significant after FDR). But real rotation underneath: TSLA/AAPL/HD/GOOGL/NFLX/META faded, AVGO/LLY/CAT/CVX/XOM/NEE strengthened. |
 | Is it persistent over time? | Reasonably: 0.65 cross-sectional correlation between first-half and second-half overnight returns. |
-| Is it a free lunch net of costs? | **No.** Median breakeven cost is ~4.2bps round-trip; even the best cases (TSLA, MU, NVDA) only tolerate ~13-15bps. This is a real, documented, factor-distinct statistical regularity in *where* returns show up, not a low-cost trading strategy. |
+| Is it a free lunch net of costs, per-ticker? | **No.** Median breakeven cost is ~4.2bps round-trip; even the best cases (TSLA, MU, NVDA) only tolerate ~13-15bps. |
+| **Would a real, diversified, cost-aware portfolio actually have made money?** | **No, not at a realistic 5bps cost** (portfolio breakeven: 4.71bps). CAGR -0.73% vs. SPY's 10.87% over 1993-2026; profitable and SPY-beating only below ~4.7bps. This is the single most important caveat in the whole report: the effect is statistically real, but it is economically thin enough that an honest portfolio simulation, not just a per-ticker cost estimate, shows it losing money at standard institutional cost assumptions. |
 
 ## Limitations
 
@@ -148,6 +167,7 @@ Yes, this is a well-documented phenomenon, not a chart trick. Key references (fu
 - Sector labels are assigned once, present-day, and applied to each ticker's entire history: a company's sector character can drift over decades (e.g. AMZN's business mix looked very different in 1998 than today).
 - Only 2-3 tickers per sector for several sectors (Energy, Materials, Real Estate, Utilities): thin enough that a different random draw of the same sectors could shift the sector-level conclusions in §3-4, even though the overall growth-vs-defensive pattern is unlikely to fully reverse.
 - None of the above models taxes, or the real mechanics of actually placing MOC/MOO orders (exchange cutoff times, broker support, execution slippage vs. the official auction print). See [`background/execution_mechanics.md`](background/execution_mechanics.md) for what it would actually take to trade this.
+- §9's portfolio backtest does not model idle cash earning a yield during the half of each cycle it isn't invested (live T-bill data was unavailable), doesn't test any weighting beyond naive equal-weight, and inherits the same static-universe survivorship noted above. See [`background/portfolio_backtest.md`](background/portfolio_backtest.md) for the full caveat list.
 
 ## Appendix: the original MU claim
 

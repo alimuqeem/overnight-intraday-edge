@@ -30,8 +30,9 @@ That claim [checks out](report.md#appendix-the-original-mu-claim) against real d
 | Does it matter which weekday you buy the close on? | **Yes.** Monday's close is the strongest of the week (27.4% mean annualized, vs. 15-18% Tue-Thu); Friday's close, the weekend gap, is the weakest (7.8%), both significant (p<0.001). Not independently confirmed in the academic literature, new to this project. See [`background/day_of_week_analysis.md`](background/day_of_week_analysis.md). |
 | Is it just a few earnings-like pops? | **No, mostly.** Only ~1.7% of days are extreme gaps (>3 std dev), and 27/30 tickers stay significant with those days removed (mean annualized return only falls 16.4%→14.5%). A handful of names (TSLA, HD, BAC, GOOGL, NVDA, AVGO) lean more heavily on tail events than the average name. See [`background/extreme_gap_analysis.md`](background/extreme_gap_analysis.md). |
 | Has the edge decayed recently? | **No, not at the aggregate level.** A NY Fed paper found a narrow overnight futures window vanished post-2021; this project's broader 30-ticker cross-sectional mean shows no significant decay (17.97%→13.24% annualized, p=0.18) and 8/30 tickers stay significant post-2021 after FDR correction (vs. ~1.5 by chance). But it's sector rotation, not stability: TSLA/AAPL/HD/GOOGL faded hard while AVGO/LLY/CAT/CVX/XOM strengthened. See [`background/recency_regime_analysis.md`](background/recency_regime_analysis.md). |
+| **Would a real, diversified, cost-aware portfolio actually have made money?** | **No, not at a realistic cost.** A full day-by-day equal-weight backtest of all 30 tickers, 1993-2026, at a 5bps round-trip cost: CAGR **-0.73%**, Sharpe -0.02, vs. SPY buy & hold's **+10.87%**. The portfolio's own breakeven cost is 4.71bps, below the 5bps this project treats as realistic. Below that breakeven the picture is genuinely attractive (0bps: 12.60% CAGR at half SPY's volatility): the entire question comes down to real-world execution cost. This is the single most important caveat in the whole project. See [`background/portfolio_backtest.md`](background/portfolio_backtest.md). |
 
-**Bottom line:** the overnight effect is real, academically well-documented (Berkman et al. 2012; Lou, Polk & Skouras 2019), survives multiple-comparisons correction, and is not just repackaged momentum exposure. But it's a growth-stock/retail-attention characteristic concentrated in about a third of the market, not a market-wide law, and it's economically thin enough that realistic trading costs erase it for most individual names. MU is the extreme tail of a real distribution, not a template.
+**Bottom line:** the overnight effect is real, academically well-documented (Berkman et al. 2012; Lou, Polk & Skouras 2019), survives multiple-comparisons correction, and is not just repackaged momentum exposure. It's a growth-stock/retail-attention characteristic concentrated in about a third of the market, not a market-wide law. But the decisive result is the portfolio backtest: a real, diversified, cost-aware implementation of this exact strategy would have **lost money** over 1993-2026 at a realistic 5bps execution cost, because the genuine statistical edge is thin enough (portfolio breakeven: 4.71bps) that it doesn't survive contact with realistic trading costs at scale, even though the underlying pattern is not in question. MU is the extreme tail of a real distribution, not a template, and "real" turns out not to mean "tradeable."
 
 ## Reproduce it (fully offline)
 
@@ -43,6 +44,7 @@ python3 scripts/analyze.py               # overnight/intraday decomposition + HA
 python3 scripts/day_of_week_analysis.py  # weekday breakdown -> reports/day_of_week_results.json
 python3 scripts/extreme_gap_analysis.py  # tail-event decomposition -> reports/extreme_gap_results.json
 python3 scripts/recency_analysis.py      # has the edge decayed since 2021? -> reports/recency_results.json
+python3 scripts/portfolio_backtest.py    # full equity-curve backtest, is this actually tradeable? -> reports/portfolio_backtest_results.json
 python3 scripts/make_charts.py           # -> charts/
 ```
 
@@ -59,9 +61,10 @@ scripts/analyze.py            overnight/intraday decomposition, HAC t-tests, bre
 scripts/day_of_week_analysis.py  breaks the overnight leg down by weekday of the close bought
 scripts/extreme_gap_analysis.py  tests how much of the edge depends on tail-event (earnings-like) gap days
 scripts/recency_analysis.py   tests whether the edge has decayed since the NY Fed's 2021 "disappearing drift" break date
+scripts/portfolio_backtest.py full day-by-day equity-curve backtest: overnight-only vs intraday-only vs SPY buy & hold
 scripts/make_charts.py        generates every chart in report.md
 data/                         cached daily OHLC per ticker + universe.json (sector map) + factors/
-reports/                      per_ticker_results.json, summary.json, day_of_week_results.json, extreme_gap_results.json, recency_results.json
+reports/                      per_ticker_results.json, summary.json, day_of_week_results.json, extreme_gap_results.json, recency_results.json, portfolio_backtest_results.json, portfolio_backtest_ledger.csv
 charts/                       generated figures
 background/mu_claim_validation.md      the research trail that led to this repo
 background/literature_review.md        7-paper literature review of the overnight-return anomaly, 1986-2025, with links
@@ -70,6 +73,7 @@ background/day_of_week_analysis.md     does it matter which weekday you buy the 
 background/extreme_gap_analysis.md     is the edge just a few earnings-like pops?
 background/execution_mechanics.md      how this actually works operationally: order types, broker support, risks, taxes
 background/recency_regime_analysis.md  has the edge decayed recently? (motivated by the NY Fed's "disappearing overnight drift")
+background/portfolio_backtest.md       is this actually tradeable? full equity-curve backtest with realistic costs
 ```
 
 ## Disclaimer

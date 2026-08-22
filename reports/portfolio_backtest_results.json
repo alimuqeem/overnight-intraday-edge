@@ -1,0 +1,159 @@
+{
+  "period_start": "1993-01-29",
+  "period_end": "2026-08-21",
+  "n_trading_days": 8448,
+  "cost_bps": 5.0,
+  "idle_cash_yield_modeled": false,
+  "portfolio_breakeven_cost_bps": 4.70916748046875,
+  "avg_names_held": 26.459689830709127,
+  "overnight_portfolio": {
+    "cagr_pct": -0.7300609635567668,
+    "ann_vol_pct": 10.593638792847665,
+    "sharpe": -0.015867249049605067,
+    "sortino": -0.018663092552482583,
+    "max_drawdown_pct": -52.82513671078692,
+    "calmar": -0.013820332686572828,
+    "max_dd_duration_days": 6651,
+    "final_equity": 0.7822249396879666,
+    "n_days": 8447,
+    "years": 33.51984126984127
+  },
+  "intraday_portfolio": {
+    "cagr_pct": -5.192619246328068,
+    "ann_vol_pct": 15.385791553391352,
+    "sharpe": -0.26961034172864007,
+    "sortino": -0.36651059776576694,
+    "max_drawdown_pct": -84.01165018057837,
+    "calmar": -0.0618083234309387,
+    "max_dd_duration_days": 6947,
+    "final_equity": 0.16739885871188748,
+    "n_days": 8447,
+    "years": 33.51984126984127
+  },
+  "spy_buy_and_hold": {
+    "cagr_pct": 10.86736754933173,
+    "ann_vol_pct": 18.54961647681432,
+    "sharpe": 0.6490690936784915,
+    "sortino": 0.8289743164578502,
+    "max_drawdown_pct": -55.189453122983835,
+    "calmar": 0.19691022350076484,
+    "max_dd_duration_days": 1656,
+    "final_equity": 31.755145645674403,
+    "n_days": 8447,
+    "years": 33.51984126984127
+  },
+  "overnight_beta_vs_spy": 0.31595875558186404,
+  "overnight_alpha_annualized_pct": -3.9722298734664783,
+  "cost_sensitivity": [
+    {
+      "cost_bps": 0,
+      "cagr_pct": 12.597308115793604,
+      "sharpe": 1.1735257674941477,
+      "final_equity": 53.35936408304114
+    },
+    {
+      "cost_bps": 1,
+      "cagr_pct": 9.796411245198344,
+      "sharpe": 0.9356471641853972,
+      "final_equity": 22.93549852864699
+    },
+    {
+      "cost_bps": 2,
+      "cagr_pct": 7.064918021908784,
+      "sharpe": 0.6977685608766468,
+      "final_equity": 9.857551682715089
+    },
+    {
+      "cost_bps": 3,
+      "cagr_pct": 4.401115369864694,
+      "sharpe": 0.4598899575678961,
+      "final_equity": 4.2363640382024945
+    },
+    {
+      "cost_bps": 4,
+      "cagr_pct": 1.8033323315380656,
+      "sharpe": 0.22201135425914556,
+      "final_equity": 1.820458600890214
+    },
+    {
+      "cost_bps": 5,
+      "cagr_pct": -0.7300609635567668,
+      "sharpe": -0.015867249049605067,
+      "final_equity": 0.7822249396879666
+    },
+    {
+      "cost_bps": 6,
+      "cagr_pct": -3.2006543051913083,
+      "sharpe": -0.2537458523583551,
+      "final_equity": 0.33608243840994395
+    },
+    {
+      "cost_bps": 8,
+      "cagr_pct": -7.959605750304699,
+      "sharpe": -0.7295030589758565,
+      "final_equity": 0.06202460988072042
+    },
+    {
+      "cost_bps": 10,
+      "cagr_pct": -12.48547542102354,
+      "sharpe": -1.2052602655933575,
+      "final_equity": 0.011442881850910172
+    },
+    {
+      "cost_bps": 15,
+      "cagr_pct": -22.853695256411612,
+      "sharpe": -2.3946532821371096,
+      "final_equity": 0.00016704019688315537
+    },
+    {
+      "cost_bps": 20,
+      "cagr_pct": -31.997841258637305,
+      "sharpe": -3.5840462986808617,
+      "final_equity": 2.433254174648305e-06
+    },
+    {
+      "cost_bps": 30,
+      "cagr_pct": -47.1730576987952,
+      "sharpe": -5.962832331768366,
+      "final_equity": 5.130497425087556e-10
+    }
+  ],
+  "crisis_windows": {
+    "2008-09 Global Financial Crisis": {
+      "overnight_portfolio_return_pct": -17.60688635677381,
+      "spy_buyhold_return_pct": -36.55236277637519
+    },
+    "2010 Flash Crash": {
+      "overnight_portfolio_return_pct": -2.9317007172101395,
+      "spy_buyhold_return_pct": -13.825423666155956
+    },
+    "2011 US debt ceiling / EU crisis": {
+      "overnight_portfolio_return_pct": -6.765842651809106,
+      "spy_buyhold_return_pct": -5.802479767524327
+    },
+    "2015-16 China deval / oil crash": {
+      "overnight_portfolio_return_pct": -8.981345128763085,
+      "spy_buyhold_return_pct": -6.704676361450623
+    },
+    "2018 Volmageddon": {
+      "overnight_portfolio_return_pct": -3.114503877301089,
+      "spy_buyhold_return_pct": -3.625104711968019
+    },
+    "2018 Q4 selloff": {
+      "overnight_portfolio_return_pct": -1.3014208133228733,
+      "spy_buyhold_return_pct": -13.831478574759636
+    },
+    "2020 COVID crash": {
+      "overnight_portfolio_return_pct": -20.115749096780068,
+      "spy_buyhold_return_pct": -13.640635277244396
+    },
+    "2022 Bear market (rate hikes)": {
+      "overnight_portfolio_return_pct": -24.39903643896393,
+      "spy_buyhold_return_pct": -18.217844758691058
+    },
+    "2023 Regional banking crisis": {
+      "overnight_portfolio_return_pct": 0.8481811382253568,
+      "spy_buyhold_return_pct": 4.107143174780603
+    }
+  }
+}

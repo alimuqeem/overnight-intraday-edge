@@ -32,6 +32,20 @@ Full numeric output: [`reports/summary.json`](reports/summary.json) (cross-secti
 
 The dashed gold line marks SPY's own realized buy-and-hold CAGR over this project's full sample window (1993-2026: 10.9%/yr), the standard "long-term S&P 500 average return" benchmark. Any bar that clears it is beating the market on that leg alone: most of the overnight bars do, most of the intraday bars don't, which is the clearest single visual of where the "alpha" in this whole topic actually comes from.
 
+### Summary: Is This Idea Tradeable?
+
+| Question | Headline Finding | Details & Quantitative Reality |
+|---|---|---|
+| **Is the statistical edge real?** | **Yes.** | 26 of 30 sector-diversified large-caps remain statistically significant after Benjamini-Hochberg FDR correction ($p < 0.0001$). It is not repackaged momentum ($\text{Mom } t = 0.13$). |
+| **Does the extreme MU pattern generalise?** | **No.** | Only MU, BAC, and FCX have a negative intraday leg. For most stocks, both legs are positive; overnight captures the majority of gains. |
+| **Where does the edge exist?** | **Selective (Growth/Tech).** | Concentrates in high-attention growth sectors (Tech, Discretionary, Comm Services); **reverses** in defensive sectors (Staples, Utilities, Energy). |
+| **Is it tradeable net of execution costs?** | **Yes, but only past a capital threshold ($\ge \$100\text{k}$).** | • **Accounts $<\$30\text{k}\text{--}\$40\text{k}$:** **Ruinous** (total loss by 2004) due to broker ticket minimums ($\$0.35/\text{order}$) eating $15\text{--}25+\text{ bps}$ per trade against a $4.71\text{ bps}$ breakeven.<br/>• **Accounts $\ge \$100\text{k}$:** **Solidly profitable** ($9.20\%$ CAGR, **$0.88$ Sharpe** vs SPY's $0.65$) as real costs drop to $\sim 1.2\text{ bps}$. |
+| **What are the structural risks?** | **Tail risk & low diversification.** | 30 names behave like only $\sim 5$ independent bets (mean pairwise correlation $0.38$), with downside $1\%$ CVaR $1.71\times$ fatter than normal. |
+
+---
+
+### Core Decomposition Statistics
+
 | | Overnight leg | Intraday leg |
 |---|---:|---:|
 | Cross-sectional mean daily return (30 tickers, excl. SPY/QQQ/MU) | **+5.74 bps/day** | +3.37 bps/day |
@@ -50,6 +64,7 @@ Two things are true at once:
 In the scatter above, MU, BAC, and FCX are alone in the bottom-right quadrant (overnight strongly positive AND intraday negative). Everyone else with a strong overnight effect (AAPL, NVDA, TSLA, AVGO, HD) still has a *positive*, just statistically weaker, intraday leg.
 
 One change from the dividend-adjustment fix: the cross-sectional paired test (overnight mean > intraday mean) now lands at **p = 0.047**, barely significant, versus p = 0.067 (not significant) before the fix and before excluding SPY/QQQ/MU from the pool. Read that "barely" literally: this is not a strong result, and a different but equally reasonable 30-ticker draw could easily land on either side of 0.05.
+
 
 ## 3. Where the effect concentrates: growth/attention sectors, not the whole market
 

@@ -400,4 +400,123 @@ if pb_path.exists() and pb_ledger_path.exists():
         fig.savefig(CHARTS_DIR / "portfolio_realistic_cost_equity_paths.png", dpi=150)
         plt.close(fig)
 
+# --- Chart 12: correlation structure -- effective independent bets ---
+corr_path = REPORTS_DIR / "correlation_tail_risk_results.json"
+if corr_path.exists():
+    with open(corr_path) as f:
+        corr_tail = json.load(f)
+    corr = corr_tail["correlation"]
+
+    fig, axes = plt.subplots(1, 2, figsize=(11, 5))
+    ax = axes[0]
+    legs = ["Overnight", "Intraday"]
+    eff_bets = [corr["overnight"]["effective_number_of_bets"], corr["intraday"]["effective_number_of_bets"]]
+    n_names = corr["overnight"]["n_tickers"]
+    ax.bar(legs, eff_bets, color=["#2b6cb0", "#38a169"])
+    ax.axhline(n_names, color="grey", linewidth=1.0, linestyle="--", label=f"{n_names} names (fully independent)")
+    for i, v in enumerate(eff_bets):
+        ax.text(i, v + 0.3, f"{v:.1f}", ha="center", fontsize=10)
+    ax.set_ylabel("Effective number of independent bets (PCA participation ratio)")
+    ax.set_title("How Much Diversification Is Really There?")
+    ax.legend(fontsize=8)
+
+    ax = axes[1]
+    corrs = [corr["overnight"]["mean_pairwise_correlation"], corr["intraday"]["mean_pairwise_correlation"]]
+    ax.bar(legs, corrs, color=["#2b6cb0", "#38a169"])
+    for i, v in enumerate(corrs):
+        ax.text(i, v + 0.01, f"{v:.2f}", ha="center", fontsize=10)
+    ax.set_ylabel("Mean pairwise correlation")
+    ax.set_title("Cross-Sectional Correlation, 30 Names")
+    fig.suptitle(f"The 30-Name Book Has ~{eff_bets[0]:.0f} Independent Overnight Bets, Not 30", fontsize=12)
+    fig.tight_layout()
+    fig.savefig(CHARTS_DIR / "correlation_effective_bets.png", dpi=150)
+    plt.close(fig)
+
+    # --- Chart 13: fat-tail risk, actual vs Gaussian-implied CVaR ---
+    pt = corr_tail["portfolio_tail_risk"]
+    fig, ax = plt.subplots(figsize=(8, 5.5))
+    cats = ["Overnight\n(actual)", "Overnight\n(Gaussian-implied)", "Intraday\n(actual)", "Intraday\n(Gaussian-implied)"]
+    vals = [pt["overnight"]["cvar_1pct_bps"], pt["overnight"]["gaussian_cvar_1pct_bps"],
+            pt["intraday"]["cvar_1pct_bps"], pt["intraday"]["gaussian_cvar_1pct_bps"]]
+    colors = ["#c53030", "#e2a5a5", "#c53030", "#e2a5a5"]
+    ax.bar(cats, vals, color=colors)
+    ax.axhline(0, color="black", linewidth=0.8)
+    ax.set_ylabel("1% CVaR / expected shortfall (bps, single day)")
+    ax.set_title(
+        f"The Overnight Leg's Worst-Day Tail Is {pt['overnight']['fat_tail_multiple_vs_gaussian']:.1f}x Fatter Than Gaussian Predicts\n"
+        f"(portfolio-level, equal-weight, staggered entry; intraday leg is {pt['intraday']['fat_tail_multiple_vs_gaussian']:.1f}x)"
+    )
+    fig.tight_layout()
+    fig.savefig(CHARTS_DIR / "tail_risk_cvar.png", dpi=150)
+    plt.close(fig)
+
+# --- Chart 14: VIX-regime conditioning ---
+vix_path = REPORTS_DIR / "vix_regime_results.json"
+if vix_path.exists():
+    with open(vix_path) as f:
+        vix_regime = json.load(f)
+    quartiles = list(vix_regime["by_vix_quartile"].keys())
+    q_ann = [vix_regime["by_vix_quartile"][q]["ann_return_pct"] for q in quartiles]
+    q_vix = [vix_regime["by_vix_quartile"][q]["mean_vix_in_bucket"] for q in quartiles]
+
+    fig, ax = plt.subplots(figsize=(8.5, 5.5))
+    ax.bar(quartiles, q_ann, color="#2b6cb0")
+    ax.axhline(spy_cagr, color="#d69e2e", linewidth=1.3, linestyle="--", zorder=4, label=spy_label)
+    for i, (a, v) in enumerate(zip(q_ann, q_vix)):
+        ax.text(i, a + 0.3, f"mean VIX={v:.1f}", ha="center", fontsize=8)
+    ax.set_ylabel("Pooled overnight annualized return (%), 30 tickers")
+    ax.set_title("Overnight Edge by VIX Quartile on the Buy Day\n(mildly stronger in high-fear regimes, but not a statistically significant slope)")
+    ax.legend(fontsize=8)
+    fig.tight_layout()
+    fig.savefig(CHARTS_DIR / "vix_regime_overnight_return.png", dpi=150)
+    plt.close(fig)
+
+# --- Chart 15: overnight-momentum sort -- equity curves and cross-window spread ---
+mom_path = REPORTS_DIR / "overnight_momentum_results.json"
+mom_ledger_path = REPORTS_DIR / "overnight_momentum_ledger.csv"
+if mom_path.exists() and mom_ledger_path.exists():
+    import csv as _csv
+    with open(mom_path) as f:
+        mom = json.load(f)
+    with open(mom_ledger_path) as f:
+        mom_rows = list(_csv.DictReader(f))
+    mom_dates = [datetime.strptime(r["date"], "%Y-%m-%d") for r in mom_rows]
+    top_eq = np.array([float(r["top_tercile_equity"]) for r in mom_rows])
+    all_eq = np.array([float(r["equal_weight_all_equity"]) for r in mom_rows])
+    bottom_eq = np.array([float(r["bottom_tercile_equity"]) for r in mom_rows])
+
+    fig, ax = plt.subplots(figsize=(11, 6))
+    ax.plot(mom_dates, top_eq, label="Top tercile (strongest trailing overnight momentum)", color="#2b6cb0", linewidth=1.3)
+    ax.plot(mom_dates, all_eq, label="Equal-weight, all names", color="#57606a", linewidth=1.1)
+    ax.plot(mom_dates, np.clip(bottom_eq, 1e-4, None), label="Bottom tercile (weakest trailing momentum)", color="#c53030", linewidth=1.1)
+    ax.set_yscale("log")
+    ax.set_ylabel("Growth of $1 (log scale)")
+    ax.set_title(
+        f"Sorting on Trailing {mom['headline_window_days']}-Day Overnight Momentum Separates Winners From Losers\n"
+        f"({mom['headline_equity_curve']['start']} to {mom['headline_equity_curve']['end']}, {mom['cost_bps']:.0f}bps cost)"
+    )
+    ax.legend(loc="upper left", fontsize=9)
+    ax.grid(True, which="both", alpha=0.25)
+    ax.xaxis.set_major_locator(mdates.YearLocator(5))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
+    fig.autofmt_xdate(rotation=45)
+    fig.tight_layout()
+    fig.savefig(CHARTS_DIR / "overnight_momentum_equity.png", dpi=150)
+    plt.close(fig)
+
+    windows = mom["windows_tested_days"]
+    spreads = [mom["by_window"][str(w)]["spread_ann_return_pct"] for w in windows]
+    spread_ts = [mom["by_window"][str(w)]["spread_t_stat"] for w in windows]
+    fig, ax = plt.subplots(figsize=(7.5, 5))
+    ax.bar([f"{w}-day" for w in windows], spreads, color="#2b6cb0")
+    for i, (s, t) in enumerate(zip(spreads, spread_ts)):
+        ax.text(i, s + 0.5, f"t={t:.1f}", ha="center", fontsize=9)
+    ax.axhline(0, color="black", linewidth=0.8)
+    ax.set_ylabel("Top-minus-bottom tercile spread, annualized (%)")
+    ax.set_xlabel("Trailing lookback window used for the momentum signal")
+    ax.set_title("Overnight-Momentum Spread Is Robust Across Lookback Horizons")
+    fig.tight_layout()
+    fig.savefig(CHARTS_DIR / "overnight_momentum_spread_by_window.png", dpi=150)
+    plt.close(fig)
+
 print("Charts written to", CHARTS_DIR)

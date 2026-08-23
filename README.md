@@ -31,6 +31,9 @@ That claim [checks out](report.md#appendix-the-original-mu-claim) against real d
 | Is it just a few earnings-like pops? | **No, mostly.** Only ~1.7% of days are extreme gaps (>3 std dev), and 27/30 tickers stay significant with those days removed (mean annualized return only falls 16.4%→14.5%). A handful of names (TSLA, HD, BAC, GOOGL, NVDA, AVGO) lean more heavily on tail events than the average name. See [`background/extreme_gap_analysis.md`](background/extreme_gap_analysis.md). |
 | Has the edge decayed recently? | **No, not at the aggregate level.** A NY Fed paper found a narrow overnight futures window vanished post-2021; this project's broader 30-ticker cross-sectional mean shows no significant decay (17.97%→13.24% annualized, p=0.18) and 8/30 tickers stay significant post-2021 after FDR correction (vs. ~1.5 by chance). But it's sector rotation, not stability: TSLA/AAPL/HD/GOOGL faded hard while AVGO/LLY/CAT/CVX/XOM strengthened. See [`background/recency_regime_analysis.md`](background/recency_regime_analysis.md). |
 | **Would a real, diversified, cost-aware portfolio actually have made money?** | **It depends entirely on account size.** At a flat 5bps assumption (matching the sibling repo's convention), no: CAGR **-0.73%** vs. SPY's **+10.87%**. Rebuilt with IBKR Pro's actual fee schedule ($0.0035/share, $0.35/order minimum) run across a grid of starting capital: **ruinous below ~$30-40k** (total capital loss by ~2004, a reflexive small-position death spiral where losses shrink positions, raising the effective cost further), **marginal at $50k** (3.99% CAGR), **solidly profitable at $100k+** (CAGR converges to **9.20%**, Sharpe **0.88**, beating SPY's 0.65 Sharpe at roughly half the volatility). Whether this is tradeable is a dollar threshold, not a yes/no. See [`background/portfolio_backtest.md`](background/portfolio_backtest.md). |
+| How diversified is the 30-name book, really? | **Less than it looks.** The overnight legs behave like ~5 independent bets, not 30 (mean pairwise correlation 0.38); the downside tail is 1.71x fatter than Gaussian predicts, and 8 of the 10 worst single days cluster into 3 systemic-crisis windows. See [`background/correlation_tail_risk_analysis.md`](background/correlation_tail_risk_analysis.md). |
+| Is the edge timeable by volatility regime? | **No reliable signal.** VIX-quartile averages tilt mildly higher in high-fear regimes (11.4%→15.0%), but a HAC-robust regression finds no significant relationship (t=0.53). The edge survives stress regimes but isn't timeable by VIX. See [`background/vix_regime_analysis.md`](background/vix_regime_analysis.md). |
+| Does past overnight performance predict future overnight performance? | **Yes, strongly.** A trailing-momentum tercile sort produces a 22.7-28.8%/yr top-minus-bottom spread (t=13.4-16.6, robust across 5/21/63-day lookbacks); a top-tercile overlay beats both naive equal-weighting and SPY on Sharpe (1.16 vs. 0.65). See [`background/overnight_momentum_analysis.md`](background/overnight_momentum_analysis.md). |
 
 **Bottom line:** the overnight effect is real, academically well-documented (Berkman et al. 2012; Lou, Polk & Skouras 2019), survives multiple-comparisons correction, and is not just repackaged momentum exposure. It's a growth-stock/retail-attention characteristic concentrated in about a third of the market, not a market-wide law. The decisive result is the portfolio backtest, rebuilt with real IBKR Pro fees: a diversified, cost-aware implementation of this exact strategy would have been **ruinous below ~$30-40k of capital**, marginal around $50k, and **solidly profitable with a better Sharpe ratio than SPY buy & hold at $100k and above**, where real trading costs converge to ~1.2bps, comfortably under the portfolio's 4.71bps breakeven. MU is the extreme tail of a real distribution, not a template, and "real" turns out to mean "tradeable, but only past a specific capital threshold, and dangerous below it."
 
@@ -45,10 +48,13 @@ python3 scripts/day_of_week_analysis.py  # weekday breakdown -> reports/day_of_w
 python3 scripts/extreme_gap_analysis.py  # tail-event decomposition -> reports/extreme_gap_results.json
 python3 scripts/recency_analysis.py      # has the edge decayed since 2021? -> reports/recency_results.json
 python3 scripts/portfolio_backtest.py    # full equity-curve backtest, is this actually tradeable? -> reports/portfolio_backtest_results.json
+python3 scripts/correlation_tail_risk_analysis.py  # diversification & fat-tail risk -> reports/correlation_tail_risk_results.json
+python3 scripts/vix_regime_analysis.py   # is the edge timeable by VIX regime? -> reports/vix_regime_results.json
+python3 scripts/overnight_momentum_analysis.py     # does trailing overnight momentum predict future returns? -> reports/overnight_momentum_results.json
 python3 scripts/make_charts.py           # -> charts/
 ```
 
-`scripts/fetch_data.py` (fresh price data via `yfinance`/`curl_cffi`) and `scripts/fetch_factors.py` (fresh Fama-French factors) are only needed to refresh the dataset; both skip files that already exist and are not required to reproduce the existing report.
+`scripts/fetch_data.py` (fresh price data via `yfinance`/`curl_cffi`), `scripts/fetch_factors.py` (fresh Fama-French factors), and `scripts/fetch_vix.py` (fresh VIX history) are only needed to refresh the dataset; all three skip files that already exist and are not required to reproduce the existing report.
 
 ## Layout
 
@@ -62,9 +68,13 @@ scripts/day_of_week_analysis.py  breaks the overnight leg down by weekday of the
 scripts/extreme_gap_analysis.py  tests how much of the edge depends on tail-event (earnings-like) gap days
 scripts/recency_analysis.py   tests whether the edge has decayed since the NY Fed's 2021 "disappearing drift" break date
 scripts/portfolio_backtest.py full day-by-day equity-curve backtest: overnight-only vs intraday-only vs SPY buy & hold
+scripts/correlation_tail_risk_analysis.py  diversification (effective independent bets) and fat-tail/CVaR risk profile
+scripts/fetch_vix.py           pulls full daily VIX history via direct Yahoo chart-API request
+scripts/vix_regime_analysis.py conditions the overnight edge on VIX level/regime
+scripts/overnight_momentum_analysis.py  trailing overnight-momentum tercile sort and equity-curve overlay
 scripts/make_charts.py        generates every chart in report.md
-data/                         cached daily OHLC per ticker + universe.json (sector map) + factors/
-reports/                      per_ticker_results.json, summary.json, day_of_week_results.json, extreme_gap_results.json, recency_results.json, portfolio_backtest_results.json, portfolio_backtest_ledger.csv, portfolio_realistic_cost_ledger.csv
+data/                         cached daily OHLC per ticker + universe.json (sector map) + factors/ + VIX.csv
+reports/                      per_ticker_results.json, summary.json, day_of_week_results.json, extreme_gap_results.json, recency_results.json, portfolio_backtest_results.json, portfolio_backtest_ledger.csv, portfolio_realistic_cost_ledger.csv, correlation_tail_risk_results.json, vix_regime_results.json, overnight_momentum_results.json, overnight_momentum_ledger.csv
 charts/                       generated figures
 background/mu_claim_validation.md      the research trail that led to this repo
 background/literature_review.md        7-paper literature review of the overnight-return anomaly, 1986-2025, with links
@@ -74,6 +84,9 @@ background/extreme_gap_analysis.md     is the edge just a few earnings-like pops
 background/execution_mechanics.md      how this actually works operationally: order types, broker support, risks, taxes
 background/recency_regime_analysis.md  has the edge decayed recently? (motivated by the NY Fed's "disappearing overnight drift")
 background/portfolio_backtest.md       is this actually tradeable? full equity-curve backtest with realistic costs
+background/correlation_tail_risk_analysis.md  how much real diversification and tail risk does the 30-name book have?
+background/vix_regime_analysis.md      is the edge stronger in high-VIX regimes, and is it timeable?
+background/overnight_momentum_analysis.md  does a stock's own trailing overnight return predict its future overnight return?
 ```
 
 ## Disclaimer

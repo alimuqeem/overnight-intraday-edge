@@ -1,0 +1,85 @@
+{
+  "windows_tested_days": [
+    5,
+    21,
+    63
+  ],
+  "headline_window_days": 21,
+  "min_names_for_sort": 9,
+  "cost_bps": 5.0,
+  "by_window": {
+    "5": {
+      "window_days": 5,
+      "n_days_with_valid_sort": 13603,
+      "first_date": "1972-09-05",
+      "last_date": "2026-08-21",
+      "top_tercile_ann_return_pct": 27.949969382708083,
+      "top_tercile_t_stat": 15.411489288538469,
+      "top_tercile_p_value": 0.0,
+      "bottom_tercile_ann_return_pct": 4.262744387733619,
+      "bottom_tercile_t_stat": 2.9954992836456364,
+      "bottom_tercile_p_value": 0.0027448947641719457,
+      "spread_ann_return_pct": 22.722941880789072,
+      "spread_t_stat": 13.374924885363914,
+      "spread_p_value": 0.0
+    },
+    "21": {
+      "window_days": 21,
+      "n_days_with_valid_sort": 13587,
+      "first_date": "1972-09-27",
+      "last_date": "2026-08-21",
+      "top_tercile_ann_return_pct": 30.20809828204993,
+      "top_tercile_t_stat": 16.308943012049777,
+      "top_tercile_p_value": 0.0,
+      "bottom_tercile_ann_return_pct": 3.2062306984824485,
+      "bottom_tercile_t_stat": 2.3186535326418065,
+      "bottom_tercile_p_value": 0.020428594337851935,
+      "spread_ann_return_pct": 26.1666913493668,
+      "spread_t_stat": 15.143285748129545,
+      "spread_p_value": 0.0
+    },
+    "63": {
+      "window_days": 63,
+      "n_days_with_valid_sort": 13545,
+      "first_date": "1972-11-28",
+      "last_date": "2026-08-21",
+      "top_tercile_ann_return_pct": 31.154804204503385,
+      "top_tercile_t_stat": 16.39659744321056,
+      "top_tercile_p_value": 0.0,
+      "bottom_tercile_ann_return_pct": 1.852312709011028,
+      "bottom_tercile_t_stat": 1.3656212613985546,
+      "bottom_tercile_p_value": 0.1720805477058409,
+      "spread_ann_return_pct": 28.771959073067933,
+      "spread_t_stat": 16.608724937939428,
+      "spread_p_value": 0.0
+    }
+  },
+  "headline_equity_curve": {
+    "start": "1972-09-27",
+    "end": "2026-08-21",
+    "top_tercile": {
+      "cagr_pct": 13.99078023411835,
+      "ann_vol_pct": 11.922396133244954,
+      "sharpe": 1.158341285673321,
+      "max_drawdown_pct": -33.32973842400617,
+      "final_equity": 1164.7321830900694,
+      "years": 53.916666666666664
+    },
+    "equal_weight_all": {
+      "cagr_pct": -1.3683499750822614,
+      "ann_vol_pct": 9.281046627560466,
+      "sharpe": -0.10182399028188885,
+      "max_drawdown_pct": -73.97054401965057,
+      "final_equity": 0.47574996436233424,
+      "years": 53.916666666666664
+    },
+    "bottom_tercile": {
+      "cagr_pct": -9.575931359207413,
+      "ann_vol_pct": 11.118434334806235,
+      "sharpe": -0.8493910267812813,
+      "max_drawdown_pct": -99.60504909546096,
+      "final_equity": 0.004395227775935431,
+      "years": 53.916666666666664
+    }
+  }
+}

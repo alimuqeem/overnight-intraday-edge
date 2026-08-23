@@ -1,0 +1,83 @@
+{
+  "vix_data_range": [
+    "1990-01-02",
+    "2026-08-21"
+  ],
+  "n_pooled_observations": 236905,
+  "by_vix_quartile": {
+    "Q1 (lowest VIX)": {
+      "n": 59076,
+      "vix_range": [
+        -Infinity,
+        13.987499713897705
+      ],
+      "mean_vix_in_bucket": 12.332120821433849,
+      "mean_daily_bps": 4.492687844651482,
+      "ann_return_pct": 11.984502942914732,
+      "t_stat": 11.444998971317759,
+      "p_value": 0.0
+    },
+    "Q2": {
+      "n": 59603,
+      "vix_range": [
+        13.987499713897705,
+        17.610000610351562
+      ],
+      "mean_vix_in_bucket": 15.782954558284864,
+      "mean_daily_bps": 4.297681869592021,
+      "ann_return_pct": 11.43578475121798,
+      "t_stat": 10.499969050373034,
+      "p_value": 0.0
+    },
+    "Q3": {
+      "n": 58653,
+      "vix_range": [
+        17.610000610351562,
+        22.702500343322754
+      ],
+      "mean_vix_in_bucket": 19.9990036069667,
+      "mean_daily_bps": 4.732947336702114,
+      "ann_return_pct": 12.664259677739743,
+      "t_stat": 9.095422602222882,
+      "p_value": 0.0
+    },
+    "Q4 (highest VIX)": {
+      "n": 59573,
+      "vix_range": [
+        22.702500343322754,
+        Infinity
+      ],
+      "mean_vix_in_bucket": 29.804247594833406,
+      "mean_daily_bps": 5.552230718913389,
+      "ann_return_pct": 15.01327679849387,
+      "t_stat": 8.06224968996082,
+      "p_value": 8.881784197001252e-16
+    }
+  },
+  "vix_level_and_change_regression": {
+    "intercept": 0.000478644534205188,
+    "intercept_t": 18.278893931629607,
+    "vix_level_per_10pt_coef_bps": 0.27945916368508983,
+    "vix_level_t": 0.5340801147903508,
+    "vix_level_p": 0.5932866080523151,
+    "vix_change_coef_bps": -6.8253278044322006,
+    "vix_change_t": -1.4051818506832208,
+    "vix_change_p": 0.15996852092014424,
+    "r_squared": 1.8262463500673398e-05,
+    "n": 236905
+  },
+  "vix_20_threshold_split": {
+    "vix_above_20": {
+      "n": 87956,
+      "ann_return_pct": 13.298827466967577,
+      "t_stat": 9.341248787900296,
+      "p_value": 0.0
+    },
+    "vix_below_20": {
+      "n": 148949,
+      "ann_return_pct": 12.455970677122163,
+      "t_stat": 17.75963428137785,
+      "p_value": 0.0
+    }
+  }
+}

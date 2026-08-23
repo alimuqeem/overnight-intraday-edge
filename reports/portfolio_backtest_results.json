@@ -250,5 +250,241 @@
         "final_year_avg_cost_bps": 1.2166666666666668
       }
     ]
+  },
+  "realistic_cost_model_with_cash_yield": {
+    "note": "Only this section models idle cash yield; the flat_5bps and realistic_cost_model sections above are unchanged and cash-yield-naive, kept as-is for direct before/after comparability.",
+    "commission_per_share": 0.0035,
+    "commission_min_per_order": 0.35,
+    "spread_bps_roundtrip": 0.75,
+    "tbill_source": "FRED DTB3 (3-month T-bill secondary market rate)",
+    "tbill_window": [
+      "1993-01-29",
+      "2026-08-21"
+    ],
+    "cash_sweep_tiers": {
+      "lt_10k": {
+        "yield": "0%, broker cash drag"
+      },
+      "10k_to_49999": {
+        "spread_below_tbill_pct": 1.5
+      },
+      "50k_to_99999": {
+        "spread_below_tbill_pct": 0.5
+      },
+      "gte_100k": {
+        "spread_below_tbill_pct": 0.25
+      }
+    },
+    "by_starting_capital": [
+      {
+        "starting_capital": 10000,
+        "cagr_pct": -100.0,
+        "sharpe": -0.21124518011229088,
+        "max_drawdown_pct": -100.0,
+        "final_equity_multiple": 0.0,
+        "final_capital": 0.0,
+        "avg_trading_cost_bps": 423.45008477719455,
+        "avg_annualized_cash_yield_pct": 1.4598851663312706
+      },
+      {
+        "starting_capital": 25000,
+        "cagr_pct": -100.0,
+        "sharpe": -0.2936620970067567,
+        "max_drawdown_pct": -100.0,
+        "final_equity_multiple": 0.0,
+        "final_capital": 0.0,
+        "avg_trading_cost_bps": 61.47495719481146,
+        "avg_annualized_cash_yield_pct": 1.4598851663312706
+      },
+      {
+        "starting_capital": 50000,
+        "cagr_pct": 9.248787046603034,
+        "sharpe": 0.8883927328176422,
+        "max_drawdown_pct": -30.128372860279427,
+        "final_equity_multiple": 19.396310744598704,
+        "final_capital": 969815.5372299352,
+        "avg_trading_cost_bps": 2.018379169160969,
+        "avg_annualized_cash_yield_pct": 2.1057724635966024
+      },
+      {
+        "starting_capital": 100000,
+        "cagr_pct": 11.276370581387418,
+        "sharpe": 1.0620633643838011,
+        "max_drawdown_pct": -30.109684938468995,
+        "final_equity_multiple": 35.92688722198701,
+        "final_capital": 3592688.722198701,
+        "avg_trading_cost_bps": 1.356388575308901,
+        "avg_annualized_cash_yield_pct": 2.2823819107375405
+      },
+      {
+        "starting_capital": 250000,
+        "cagr_pct": 11.666350206128229,
+        "sharpe": 1.0951006446603002,
+        "max_drawdown_pct": -30.109684938469027,
+        "final_equity_multiple": 40.39695319710488,
+        "final_capital": 10099238.29927622,
+        "avg_trading_cost_bps": 1.2175001651169772,
+        "avg_annualized_cash_yield_pct": 2.2823819107375405
+      },
+      {
+        "starting_capital": 500000,
+        "cagr_pct": 11.668694923030397,
+        "sharpe": 1.095299163431965,
+        "max_drawdown_pct": -30.109684938469016,
+        "final_equity_multiple": 40.42539564299369,
+        "final_capital": 20212697.821496844,
+        "avg_trading_cost_bps": 1.2166666666666668,
+        "avg_annualized_cash_yield_pct": 2.2823819107375405
+      },
+      {
+        "starting_capital": 1000000,
+        "cagr_pct": 11.668694923030397,
+        "sharpe": 1.095299163431965,
+        "max_drawdown_pct": -30.109684938469016,
+        "final_equity_multiple": 40.42539564299369,
+        "final_capital": 40425395.64299369,
+        "avg_trading_cost_bps": 1.2166666666666668,
+        "avg_annualized_cash_yield_pct": 2.2823819107375405
+      },
+      {
+        "starting_capital": 2000000,
+        "cagr_pct": 11.668694923030397,
+        "sharpe": 1.095299163431965,
+        "max_drawdown_pct": -30.109684938469016,
+        "final_equity_multiple": 40.42539564299369,
+        "final_capital": 80850791.28598738,
+        "avg_trading_cost_bps": 1.2166666666666668,
+        "avg_annualized_cash_yield_pct": 2.2823819107375405
+      }
+    ]
+  },
+  "spread_sensitivity": {
+    "note": "Stress test of the 0.75bps spread assumption used throughout, on the cash-yield model, at the capital levels where the tradeability verdict actually turns.",
+    "bps_tested": [
+      0.5,
+      0.75,
+      1.0,
+      1.5
+    ],
+    "capital_levels_tested": [
+      25000,
+      50000,
+      100000,
+      250000
+    ],
+    "results": [
+      {
+        "spread_bps_roundtrip": 0.5,
+        "starting_capital": 25000,
+        "cagr_pct": -100.0,
+        "sharpe": -0.47095428599558053,
+        "final_capital": 0.0
+      },
+      {
+        "spread_bps_roundtrip": 0.5,
+        "starting_capital": 50000,
+        "cagr_pct": 10.20667986730417,
+        "sharpe": 0.970819273636056,
+        "final_capital": 1299489.4096215307
+      },
+      {
+        "spread_bps_roundtrip": 0.5,
+        "starting_capital": 100000,
+        "cagr_pct": 12.01172729359774,
+        "sharpe": 1.1242630785603613,
+        "final_capital": 4480273.353170983
+      },
+      {
+        "spread_bps_roundtrip": 0.5,
+        "starting_capital": 250000,
+        "cagr_pct": 12.371957203473261,
+        "sharpe": 1.154584975485178,
+        "final_capital": 12473441.314365566
+      },
+      {
+        "spread_bps_roundtrip": 0.75,
+        "starting_capital": 25000,
+        "cagr_pct": -100.0,
+        "sharpe": -0.2936620970067567,
+        "final_capital": 0.0
+      },
+      {
+        "spread_bps_roundtrip": 0.75,
+        "starting_capital": 50000,
+        "cagr_pct": 9.248787046603034,
+        "sharpe": 0.8883927328176422,
+        "final_capital": 969815.5372299352
+      },
+      {
+        "spread_bps_roundtrip": 0.75,
+        "starting_capital": 100000,
+        "cagr_pct": 11.276370581387418,
+        "sharpe": 1.0620633643838011,
+        "final_capital": 3592688.722198701
+      },
+      {
+        "spread_bps_roundtrip": 0.75,
+        "starting_capital": 250000,
+        "cagr_pct": 11.666350206128229,
+        "sharpe": 1.0951006446603002,
+        "final_capital": 10099238.29927622
+      },
+      {
+        "spread_bps_roundtrip": 1.0,
+        "starting_capital": 25000,
+        "cagr_pct": -100.0,
+        "sharpe": -0.3946844136876725,
+        "final_capital": 0.0
+      },
+      {
+        "spread_bps_roundtrip": 1.0,
+        "starting_capital": 50000,
+        "cagr_pct": 8.226696904270092,
+        "sharpe": 0.7996457706098576,
+        "final_capital": 707707.4600831325
+      },
+      {
+        "spread_bps_roundtrip": 1.0,
+        "starting_capital": 100000,
+        "cagr_pct": 10.541530205568495,
+        "sharpe": 0.9994986366300909,
+        "final_capital": 2877179.23623159
+      },
+      {
+        "spread_bps_roundtrip": 1.0,
+        "starting_capital": 250000,
+        "cagr_pct": 10.96514076973878,
+        "sharpe": 1.035614984904933,
+        "final_capital": 8176860.905408063
+      },
+      {
+        "spread_bps_roundtrip": 1.5,
+        "starting_capital": 25000,
+        "cagr_pct": -100.0,
+        "sharpe": -0.5839456754678681,
+        "final_capital": 0.0
+      },
+      {
+        "spread_bps_roundtrip": 1.5,
+        "starting_capital": 50000,
+        "cagr_pct": 5.793838225874981,
+        "sharpe": 0.5850032996411968,
+        "final_capital": 330276.6333594373
+      },
+      {
+        "spread_bps_roundtrip": 1.5,
+        "starting_capital": 100000,
+        "cagr_pct": 9.051817256206075,
+        "sharpe": 0.8713835466841716,
+        "final_capital": 1825782.6398646247
+      },
+      {
+        "spread_bps_roundtrip": 1.5,
+        "starting_capital": 250000,
+        "cagr_pct": 9.575764617476313,
+        "sharpe": 0.9166361261503787,
+        "final_capital": 5359991.1724732835
+      }
+    ]
   }
 }

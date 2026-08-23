@@ -105,6 +105,33 @@ def rolling_series(ticker: str):
     return points
 
 
+def rolling_value_at_dates(ticker: str, target_dates: list) -> dict:
+    """Trailing ROLLING_WINDOW_DAYS-day annualized overnight return for
+    `ticker`, evaluated at each of `target_dates` (a shared date grid,
+    e.g. SPY's own rolling check-in dates) rather than this ticker's own
+    independently-stepped grid. An earlier version averaged tickers'
+    rolling_series() output by positional index against SPY's date axis;
+    since each ticker's own series starts at a different calendar date,
+    that lined up different real dates under the same index and
+    misrepresented the cross-sectional mean line. Returns
+    {date: ann_return_pct} only for dates this ticker both reaches (has
+    >= ROLLING_WINDOW_DAYS of prior history) and was already trading on."""
+    dates, opens, closes = load_ticker(ticker)
+    overnight = opens[1:] / closes[:-1] - 1.0
+    d = dates[1:]
+    date_to_idx = {date: i for i, date in enumerate(d)}
+
+    out = {}
+    for date in target_dates:
+        idx = date_to_idx.get(date)
+        if idx is None or idx + 1 < ROLLING_WINDOW_DAYS:
+            continue
+        window = overnight[idx + 1 - ROLLING_WINDOW_DAYS: idx + 1]
+        ann = (1 + window.mean()) ** TRADING_DAYS_PER_YEAR - 1
+        out[date] = ann * 100
+    return out
+
+
 def main():
     with open(DATA_DIR / "universe.json") as f:
         universe = json.load(f)
@@ -172,18 +199,16 @@ def main():
         if ticker in per_ticker:
             rolling[ticker] = rolling_series(ticker)
 
-    # Cross-sectional mean rolling series (align on QQQ's dates since it has
-    # the shortest history among liquid benchmarks with a clean full window)
-    all_rolling = {t: rolling_series(t) for t in cross_tickers}
-    # Use SPY's rolling dates as the common x-axis, average whichever tickers
-    # have data at each check-in date
+    # Cross-sectional mean rolling series, evaluated at SPY's own rolling
+    # check-in dates: each ticker's trailing-window value is looked up by
+    # actual calendar date (rolling_value_at_dates), not by position in its
+    # own independently-stepped series, so tickers with different start
+    # dates are compared date-for-date rather than offset-for-offset.
     ref_dates = [p["date"] for p in rolling.get("SPY", [])]
+    per_ticker_asof = {t: rolling_value_at_dates(t, ref_dates) for t in cross_tickers}
     cross_mean_series = []
-    for i, date in enumerate(ref_dates):
-        vals = []
-        for t, series in all_rolling.items():
-            if i < len(series):
-                vals.append(series[i]["ann_return_pct"])
+    for date in ref_dates:
+        vals = [per_ticker_asof[t][date] for t in cross_tickers if date in per_ticker_asof[t]]
         if vals:
             cross_mean_series.append({"date": date, "ann_return_pct": float(np.mean(vals))})
     rolling["cross_sectional_mean"] = cross_mean_series

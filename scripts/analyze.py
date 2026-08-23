@@ -29,6 +29,7 @@ Methodology notes (v2, after an institutional-review pass):
 """
 from __future__ import annotations
 
+import argparse
 import csv
 import json
 from pathlib import Path
@@ -46,6 +47,19 @@ CHARTS_DIR.mkdir(exist_ok=True)
 
 TRADING_DAYS_PER_YEAR = 252
 
+# Data-hygiene filter modes (background/independent_review.md finding #2,
+# quantified in reports/data_hygiene_report.json): pre-2000 rows in this
+# project's data sometimes record Open == Close, a vendor artifact that
+# mechanically dumps the whole day's move into the overnight leg. Mode is
+# applied in load_ticker() by dropping affected rows entirely, the same
+# way genuinely missing rows are already skipped -- not by touching the
+# leg-computation logic below.
+#   A = raw (default, current/baseline behavior, unchanged)
+#   B = modern-era only: truncate to dates >= 2000-01-01
+#   C = filtered: drop flat (open == close) rows across full history
+FLAT_DAY_REL_TOL = 1e-6
+MODERN_ERA_START = "2000-01-01"
+
 # SPY/QQQ are baskets that overlap with the other 30 constituents, and MU
 # was the hand-picked motivating case -- excluded from cross-sectional
 # pooling to avoid double-counting/selection bias, but still analyzed and
@@ -53,7 +67,7 @@ TRADING_DAYS_PER_YEAR = 252
 BENCHMARK_TICKERS = {"SPY", "QQQ", "MU"}
 
 
-def load_ticker(ticker: str):
+def load_ticker(ticker: str, mode: str = "A"):
     path = DATA_DIR / f"{ticker}.csv"
     dates, opens, closes = [], [], []
     with open(path) as f:
@@ -61,9 +75,15 @@ def load_ticker(ticker: str):
         for row in reader:
             if not row["open"] or not row["close"]:
                 continue
-            dates.append(row["date"])
-            opens.append(float(row["open"]))
-            closes.append(float(row["close"]))
+            date = row["date"]
+            if mode == "B" and date < MODERN_ERA_START:
+                continue
+            open_, close_ = float(row["open"]), float(row["close"])
+            if mode == "C" and abs(open_ - close_) < FLAT_DAY_REL_TOL * close_:
+                continue
+            dates.append(date)
+            opens.append(open_)
+            closes.append(close_)
     return dates, np.array(opens), np.array(closes)
 
 
@@ -188,8 +208,8 @@ def spy_buyhold_benchmark():
     }
 
 
-def analyze_ticker(ticker: str, factors: dict):
-    dates, opens, closes = load_ticker(ticker)
+def analyze_ticker(ticker: str, factors: dict, mode: str = "A"):
+    dates, opens, closes = load_ticker(ticker, mode=mode)
     if len(dates) < 500:
         return None
     d, overnight, intraday = compute_legs(dates, opens, closes)
@@ -236,12 +256,14 @@ def benjamini_hochberg(p_values: list, alpha: float = 0.05):
     return significant_idx, expected_false_positives
 
 
-def main():
+def main(mode: str = "A"):
     with open(DATA_DIR / "universe.json") as f:
         universe = json.load(f)
 
     factors = load_factors()
     print(f"Loaded {len(factors)} days of Fama-French factor data")
+    if mode != "A":
+        print(f"Running under Mode {mode} (see module docstring/report for what this changes)")
 
     per_ticker = {}
     cross_section_tickers = []  # excludes BENCHMARK_TICKERS
@@ -252,7 +274,7 @@ def main():
             if not path.exists():
                 print(f"SKIP {ticker}: no data")
                 continue
-            out = analyze_ticker(ticker, factors)
+            out = analyze_ticker(ticker, factors, mode=mode)
             if out is None:
                 print(f"SKIP {ticker}: insufficient data")
                 continue
@@ -332,14 +354,23 @@ def main():
         "mean_overnight_mom_loading_t": float(np.mean([a["mom_t"] for a in on_alphas])),
     }
 
-    with open(REPORTS_DIR / "per_ticker_results.json", "w") as f:
+    suffix = "" if mode == "A" else f"_mode_{mode.lower()}"
+    with open(REPORTS_DIR / f"per_ticker_results{suffix}.json", "w") as f:
         json.dump(per_ticker, f, indent=2, default=str)
-    with open(REPORTS_DIR / "summary.json", "w") as f:
+    with open(REPORTS_DIR / f"summary{suffix}.json", "w") as f:
         json.dump(summary, f, indent=2)
 
-    print("\n=== CROSS-SECTIONAL SUMMARY (30-ticker diversified population, excl. SPY/QQQ/MU) ===")
+    print(f"\n=== CROSS-SECTIONAL SUMMARY, Mode {mode} (30-ticker diversified population, excl. SPY/QQQ/MU) ===")
     print(json.dumps(summary, indent=2))
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--mode", choices=["A", "B", "C"], default="A",
+        help="A=raw/baseline (default), B=modern-era only (truncate to >=2000-01-01), "
+             "C=exclude flat open==close rows across full history. B/C write to "
+             "reports/*_mode_b.json / *_mode_c.json, leaving the Mode-A baseline untouched.",
+    )
+    args = parser.parse_args()
+    main(args.mode)

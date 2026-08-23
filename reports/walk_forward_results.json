@@ -1,0 +1,585 @@
+{
+  "windows_tested_days": [
+    5,
+    21,
+    63
+  ],
+  "headline_window_days": 21,
+  "cost_bps": 5.0,
+  "standard_holdout": {
+    "in_sample_window": [
+      "1993-01-01",
+      "2010-12-31"
+    ],
+    "out_of_sample_window_start": "2011-01-01",
+    "by_window": {
+      "5": {
+        "in_sample": {
+          "n_days": 4535,
+          "start": "1993-01-04",
+          "end": "2010-12-31",
+          "cagr_pct": 13.276429155552627,
+          "sharpe": 1.0470279991752658,
+          "max_drawdown_pct": -38.36887548465274,
+          "spread_ann_pct": 27.214807076738555,
+          "spread_t_stat": 8.965487753377442,
+          "spread_p_value": 0.0
+        },
+        "out_of_sample": {
+          "n_days": 3932,
+          "start": "2011-01-03",
+          "end": "2026-08-21",
+          "cagr_pct": 7.218248000527638,
+          "sharpe": 0.6081733604040135,
+          "max_drawdown_pct": -27.839036737827605,
+          "spread_ann_pct": 9.072787408334548,
+          "spread_t_stat": 3.3423536835422114,
+          "spread_p_value": 0.0008384769333573683
+        }
+      },
+      "21": {
+        "in_sample": {
+          "n_days": 4535,
+          "start": "1993-01-04",
+          "end": "2010-12-31",
+          "cagr_pct": 15.811791472900772,
+          "sharpe": 1.2010649959667254,
+          "max_drawdown_pct": -33.32973842400614,
+          "spread_ann_pct": 32.55497716302082,
+          "spread_t_stat": 11.160632783259295,
+          "spread_p_value": 0.0
+        },
+        "out_of_sample": {
+          "n_days": 3932,
+          "start": "2011-01-03",
+          "end": "2026-08-21",
+          "cagr_pct": 6.128283617287678,
+          "sharpe": 0.5300847322948913,
+          "max_drawdown_pct": -31.932163751016706,
+          "spread_ann_pct": 10.38138091707217,
+          "spread_t_stat": 4.081662332515783,
+          "spread_p_value": 4.5603157999396515e-05
+        }
+      },
+      "63": {
+        "in_sample": {
+          "n_days": 4535,
+          "start": "1993-01-04",
+          "end": "2010-12-31",
+          "cagr_pct": 15.293436284226413,
+          "sharpe": 1.1294758705358008,
+          "max_drawdown_pct": -32.25412920807641,
+          "spread_ann_pct": 35.505770448177465,
+          "spread_t_stat": 11.878570422933002,
+          "spread_p_value": 0.0
+        },
+        "out_of_sample": {
+          "n_days": 3932,
+          "start": "2011-01-03",
+          "end": "2026-08-21",
+          "cagr_pct": 8.255716579400119,
+          "sharpe": 0.6691643866282362,
+          "max_drawdown_pct": -32.92106355297524,
+          "spread_ann_pct": 13.635590165023114,
+          "spread_t_stat": 5.538970448116682,
+          "spread_p_value": 3.241659429775723e-08
+        }
+      }
+    },
+    "selected_window_days": 21,
+    "selected_matches_headline": true,
+    "selected_out_of_sample": {
+      "n_days": 3932,
+      "start": "2011-01-03",
+      "end": "2026-08-21",
+      "cagr_pct": 6.128283617287678,
+      "sharpe": 0.5300847322948913,
+      "max_drawdown_pct": -31.932163751016706,
+      "spread_ann_pct": 10.38138091707217,
+      "spread_t_stat": 4.081662332515783,
+      "spread_p_value": 4.5603157999396515e-05
+    },
+    "headline_out_of_sample": {
+      "n_days": 3932,
+      "start": "2011-01-03",
+      "end": "2026-08-21",
+      "cagr_pct": 6.128283617287678,
+      "sharpe": 0.5300847322948913,
+      "max_drawdown_pct": -31.932163751016706,
+      "spread_ann_pct": 10.38138091707217,
+      "spread_t_stat": 4.081662332515783,
+      "spread_p_value": 4.5603157999396515e-05
+    }
+  },
+  "purged_kfold": {
+    "n_folds": 5,
+    "purge_trading_days": 5,
+    "reference_window_days": 21,
+    "by_fold": [
+      {
+        "fold": 0,
+        "test_start": "1972-09-27",
+        "test_end": "1983-06-30",
+        "purge_train_excluded_range": [
+          "1972-09-27",
+          "1983-07-08"
+        ],
+        "by_window": {
+          "5": {
+            "train": {
+              "n_days": 10881,
+              "start": "1972-09-05",
+              "end": "2026-08-21",
+              "cagr_pct": 10.101334574030464,
+              "sharpe": 0.8621931544447385,
+              "max_drawdown_pct": -38.36887548465266,
+              "spread_ann_pct": 21.194148065516384,
+              "spread_t_stat": 11.7264671793973,
+              "spread_p_value": 0.0
+            },
+            "test": {
+              "n_days": 2717,
+              "start": "1972-09-27",
+              "end": "1983-06-30",
+              "cagr_pct": 20.24690817417425,
+              "sharpe": 1.9229221814399349,
+              "max_drawdown_pct": -12.721934232264475,
+              "spread_ann_pct": 28.982031126131112,
+              "spread_t_stat": 6.6117991268892355,
+              "spread_p_value": 4.554445709459287e-11
+            }
+          },
+          "21": {
+            "train": {
+              "n_days": 10865,
+              "start": "1983-07-11",
+              "end": "2026-08-21",
+              "cagr_pct": 11.36170867891122,
+              "sharpe": 0.9487227928413993,
+              "max_drawdown_pct": -33.329738424006116,
+              "spread_ann_pct": 23.989788369235686,
+              "spread_t_stat": 13.578274992779894,
+              "spread_p_value": 0.0
+            },
+            "test": {
+              "n_days": 2717,
+              "start": "1972-09-27",
+              "end": "1983-06-30",
+              "cagr_pct": 25.106243133275253,
+              "sharpe": 2.0791960171003834,
+              "max_drawdown_pct": -19.747849375401582,
+              "spread_ann_pct": 35.07305988031189,
+              "spread_t_stat": 7.187834329437753,
+              "spread_p_value": 8.468781231840694e-13
+            }
+          },
+          "63": {
+            "train": {
+              "n_days": 10865,
+              "start": "1983-07-11",
+              "end": "2026-08-21",
+              "cagr_pct": 11.882892785861166,
+              "sharpe": 0.9498495192136607,
+              "max_drawdown_pct": -32.921063552975326,
+              "spread_ann_pct": 25.882196324976814,
+              "spread_t_stat": 14.406946410916799,
+              "spread_p_value": 0.0
+            },
+            "test": {
+              "n_days": 2675,
+              "start": "1972-11-28",
+              "end": "1983-06-30",
+              "cagr_pct": 27.118433590045576,
+              "sharpe": 2.1667263855070993,
+              "max_drawdown_pct": -18.219006244823433,
+              "spread_ann_pct": 41.025268048711624,
+              "spread_t_stat": 8.583197352103403,
+              "spread_p_value": 0.0
+            }
+          }
+        },
+        "selected_window_days": 63,
+        "selected_train_sharpe": 0.9498495192136607,
+        "selected_test_sharpe": 2.1667263855070993
+      },
+      {
+        "fold": 1,
+        "test_start": "1983-07-01",
+        "test_end": "1994-03-30",
+        "purge_train_excluded_range": [
+          "1983-06-24",
+          "1994-04-07"
+        ],
+        "by_window": {
+          "5": {
+            "train": {
+              "n_days": 10875,
+              "start": "1972-09-05",
+              "end": "2026-08-21",
+              "cagr_pct": 13.019788840356261,
+              "sharpe": 1.06444019397932,
+              "max_drawdown_pct": -38.36887548465273,
+              "spread_ann_pct": 21.127684992077867,
+              "spread_t_stat": 10.862817244785996,
+              "spread_p_value": 0.0
+            },
+            "test": {
+              "n_days": 2718,
+              "start": "1983-07-01",
+              "end": "1994-03-30",
+              "cagr_pct": 8.498418932102613,
+              "sharpe": 0.9740133318098696,
+              "max_drawdown_pct": -29.069618126233888,
+              "spread_ann_pct": 29.701288107879154,
+              "spread_t_stat": 9.135778780405248,
+              "spread_p_value": 0.0
+            }
+          },
+          "21": {
+            "train": {
+              "n_days": 10859,
+              "start": "1972-09-27",
+              "end": "2026-08-21",
+              "cagr_pct": 14.93286823444777,
+              "sharpe": 1.1707912753235061,
+              "max_drawdown_pct": -33.32973842400618,
+              "spread_ann_pct": 25.33979184862187,
+              "spread_t_stat": 12.854938175795244,
+              "spread_p_value": 0.0
+            },
+            "test": {
+              "n_days": 2718,
+              "start": "1983-07-01",
+              "end": "1994-03-30",
+              "cagr_pct": 10.412800535762855,
+              "sharpe": 1.1616343632243167,
+              "max_drawdown_pct": -24.86983157287931,
+              "spread_ann_pct": 29.689850454841825,
+              "spread_t_stat": 8.691719514094332,
+              "spread_p_value": 0.0
+            }
+          },
+          "63": {
+            "train": {
+              "n_days": 10817,
+              "start": "1972-11-28",
+              "end": "2026-08-21",
+              "cagr_pct": 15.698042177704696,
+              "sharpe": 1.1886925278582527,
+              "max_drawdown_pct": -32.92106355297516,
+              "spread_ann_pct": 28.66970525731809,
+              "spread_t_stat": 14.637960341623916,
+              "spread_p_value": 0.0
+            },
+            "test": {
+              "n_days": 2718,
+              "start": "1983-07-01",
+              "end": "1994-03-30",
+              "cagr_pct": 11.120320596330924,
+              "sharpe": 1.1129921872188866,
+              "max_drawdown_pct": -29.26097701898169,
+              "spread_ann_pct": 29.21357691671629,
+              "spread_t_stat": 8.245348569467652,
+              "spread_p_value": 2.220446049250313e-16
+            }
+          }
+        },
+        "selected_window_days": 63,
+        "selected_train_sharpe": 1.1886925278582527,
+        "selected_test_sharpe": 1.1129921872188866
+      },
+      {
+        "fold": 2,
+        "test_start": "1994-03-31",
+        "test_end": "2005-01-12",
+        "purge_train_excluded_range": [
+          "1994-03-24",
+          "2005-01-20"
+        ],
+        "by_window": {
+          "5": {
+            "train": {
+              "n_days": 10876,
+              "start": "1972-09-05",
+              "end": "2026-08-21",
+              "cagr_pct": 11.085399025362431,
+              "sharpe": 0.9741074409289879,
+              "max_drawdown_pct": -38.36887548465272,
+              "spread_ann_pct": 20.155603533301413,
+              "spread_t_stat": 11.121080592142954,
+              "spread_p_value": 0.0
+            },
+            "test": {
+              "n_days": 2717,
+              "start": "1994-03-31",
+              "end": "2005-01-12",
+              "cagr_pct": 16.05579178887655,
+              "sharpe": 1.2897663104302706,
+              "max_drawdown_pct": -19.065216716898725,
+              "spread_ann_pct": 33.47860340062563,
+              "spread_t_stat": 7.623730152197291,
+              "spread_p_value": 3.397282455352979e-14
+            }
+          },
+          "21": {
+            "train": {
+              "n_days": 10860,
+              "start": "1972-09-27",
+              "end": "2026-08-21",
+              "cagr_pct": 12.702859982846103,
+              "sharpe": 1.068353369887007,
+              "max_drawdown_pct": -33.329738424006095,
+              "spread_ann_pct": 23.096448200941076,
+              "spread_t_stat": 12.364248816867923,
+              "spread_p_value": 0.0
+            },
+            "test": {
+              "n_days": 2717,
+              "start": "1994-03-31",
+              "end": "2005-01-12",
+              "cagr_pct": 19.338299699182816,
+              "sharpe": 1.5124397646316527,
+              "max_drawdown_pct": -21.163227769136896,
+              "spread_ann_pct": 39.02686183226341,
+              "spread_t_stat": 9.024632859578736,
+              "spread_p_value": 0.0
+            }
+          },
+          "63": {
+            "train": {
+              "n_days": 10818,
+              "start": "1972-11-28",
+              "end": "2026-08-21",
+              "cagr_pct": 14.17718364700995,
+              "sharpe": 1.1302070682812793,
+              "max_drawdown_pct": -32.92106355297515,
+              "spread_ann_pct": 26.24444603850531,
+              "spread_t_stat": 14.044759105417425,
+              "spread_p_value": 0.0
+            },
+            "test": {
+              "n_days": 2717,
+              "start": "1994-03-31",
+              "end": "2005-01-12",
+              "cagr_pct": 17.09343419541409,
+              "sharpe": 1.3263968474608405,
+              "max_drawdown_pct": -20.848638763834327,
+              "spread_ann_pct": 39.238543619553724,
+              "spread_t_stat": 9.207471960463316,
+              "spread_p_value": 0.0
+            }
+          }
+        },
+        "selected_window_days": 63,
+        "selected_train_sharpe": 1.1302070682812793,
+        "selected_test_sharpe": 1.3263968474608405
+      },
+      {
+        "fold": 3,
+        "test_start": "2005-01-13",
+        "test_end": "2015-10-29",
+        "purge_train_excluded_range": [
+          "2005-01-06",
+          "2015-11-05"
+        ],
+        "by_window": {
+          "5": {
+            "train": {
+              "n_days": 10875,
+              "start": "1972-09-05",
+              "end": "2026-08-21",
+              "cagr_pct": 12.613306154384496,
+              "sharpe": 1.1295868622269283,
+              "max_drawdown_pct": -29.0696181262338,
+              "spread_ann_pct": 24.750626745500814,
+              "spread_t_stat": 12.451249794079061,
+              "spread_p_value": 0.0
+            },
+            "test": {
+              "n_days": 2718,
+              "start": "2005-01-13",
+              "end": "2015-10-29",
+              "cagr_pct": 9.721115585674521,
+              "sharpe": 0.7518775401802593,
+              "max_drawdown_pct": -38.36887548465264,
+              "spread_ann_pct": 14.863578760026153,
+              "spread_t_stat": 4.922958444737466,
+              "spread_p_value": 9.034476167180117e-07
+            }
+          },
+          "21": {
+            "train": {
+              "n_days": 10859,
+              "start": "1972-09-27",
+              "end": "2026-08-21",
+              "cagr_pct": 14.612078603779132,
+              "sharpe": 1.25907947968656,
+              "max_drawdown_pct": -31.932163751016752,
+              "spread_ann_pct": 27.556608611533996,
+              "spread_t_stat": 13.412328318720414,
+              "spread_p_value": 0.0
+            },
+            "test": {
+              "n_days": 2718,
+              "start": "2005-01-13",
+              "end": "2015-10-29",
+              "cagr_pct": 11.4454609645686,
+              "sharpe": 0.8443101823783677,
+              "max_drawdown_pct": -33.32973842400621,
+              "spread_ann_pct": 20.861369476787072,
+              "spread_t_stat": 7.608334051317486,
+              "spread_p_value": 3.7969627442180354e-14
+            }
+          },
+          "63": {
+            "train": {
+              "n_days": 10817,
+              "start": "1972-11-28",
+              "end": "2026-08-21",
+              "cagr_pct": 15.10931024781048,
+              "sharpe": 1.249198128377824,
+              "max_drawdown_pct": -32.92106355297514,
+              "spread_ann_pct": 29.488215339469726,
+              "spread_t_stat": 14.490269583243851,
+              "spread_p_value": 0.0
+            },
+            "test": {
+              "n_days": 2718,
+              "start": "2005-01-13",
+              "end": "2015-10-29",
+              "cagr_pct": 13.288375494073357,
+              "sharpe": 0.928056219726672,
+              "max_drawdown_pct": -32.254129208076534,
+              "spread_ann_pct": 26.14683317990849,
+              "spread_t_stat": 8.791401626375862,
+              "spread_p_value": 0.0
+            }
+          }
+        },
+        "selected_window_days": 21,
+        "selected_train_sharpe": 1.25907947968656,
+        "selected_test_sharpe": 0.8443101823783677
+      },
+      {
+        "fold": 4,
+        "test_start": "2015-10-30",
+        "test_end": "2026-08-21",
+        "purge_train_excluded_range": [
+          "2015-10-23",
+          "2026-08-21"
+        ],
+        "by_window": {
+          "5": {
+            "train": {
+              "n_days": 10881,
+              "start": "1972-09-05",
+              "end": "2015-10-22",
+              "cagr_pct": 13.472694451226431,
+              "sharpe": 1.1822741826901553,
+              "max_drawdown_pct": -38.368875484652634,
+              "spread_ann_pct": 26.494136384604094,
+              "spread_t_stat": 13.703729502016808,
+              "spread_p_value": 0.0
+            },
+            "test": {
+              "n_days": 2717,
+              "start": "2015-10-30",
+              "end": "2026-08-21",
+              "cagr_pct": 6.481254296012362,
+              "sharpe": 0.548910278159056,
+              "max_drawdown_pct": -27.839036737827637,
+              "spread_ann_pct": 8.565350354888945,
+              "spread_t_stat": 2.4976504190879867,
+              "spread_p_value": 0.012560674427597451
+            }
+          },
+          "21": {
+            "train": {
+              "n_days": 10865,
+              "start": "1972-09-27",
+              "end": "2015-10-22",
+              "cagr_pct": 16.390184332675474,
+              "sharpe": 1.3583728346085477,
+              "max_drawdown_pct": -33.32973842400617,
+              "spread_ann_pct": 30.957307697072235,
+              "spread_t_stat": 15.58906312411298,
+              "spread_p_value": 0.0
+            },
+            "test": {
+              "n_days": 2717,
+              "start": "2015-10-30",
+              "end": "2026-08-21",
+              "cagr_pct": 4.765116369998146,
+              "sharpe": 0.4279115113818397,
+              "max_drawdown_pct": -31.93216375101673,
+              "spread_ann_pct": 8.600377953756432,
+              "spread_t_stat": 2.643983928479385,
+              "spread_p_value": 0.008240787932510374
+            }
+          },
+          "63": {
+            "train": {
+              "n_days": 10823,
+              "start": "1972-11-28",
+              "end": "2015-10-22",
+              "cagr_pct": 16.923796765873856,
+              "sharpe": 1.3409828352179938,
+              "max_drawdown_pct": -32.254129208076584,
+              "spread_ann_pct": 33.72454280656907,
+              "spread_t_stat": 16.70716810373448,
+              "spread_p_value": 0.0
+            },
+            "test": {
+              "n_days": 2717,
+              "start": "2015-10-30",
+              "end": "2026-08-21",
+              "cagr_pct": 6.3477872725527185,
+              "sharpe": 0.5325858035475018,
+              "max_drawdown_pct": -32.921063552975085,
+              "spread_ann_pct": 10.776185123170222,
+              "spread_t_stat": 3.5299637358130367,
+              "spread_p_value": 0.00042252365978345807
+            }
+          }
+        },
+        "selected_window_days": 21,
+        "selected_train_sharpe": 1.3583728346085477,
+        "selected_test_sharpe": 0.4279115113818397
+      }
+    ],
+    "mean_selected_test_sharpe": 1.1756674227894068,
+    "pct_folds_selecting_headline_window": 40.0
+  },
+  "deflated_sharpe_ratio": {
+    "n_trials": 3,
+    "sr_benchmark_expected_max_under_null": 0.003876396399487519,
+    "by_window": {
+      "5": {
+        "n_days": 13603,
+        "daily_sharpe": 0.06546505024959025,
+        "annualized_sharpe": 1.0392254551605762,
+        "skew": -0.3684057325322807,
+        "kurtosis": 18.621591271234564,
+        "dsr": 0.9999999999989916
+      },
+      "21": {
+        "n_days": 13587,
+        "daily_sharpe": 0.07296595698053852,
+        "annualized_sharpe": 1.158298658066054,
+        "skew": -0.39674387094475355,
+        "kurtosis": 16.29549336338318,
+        "dsr": 0.9999999999999981
+      },
+      "63": {
+        "n_days": 13545,
+        "daily_sharpe": 0.07366366772216248,
+        "annualized_sharpe": 1.1693744727224267,
+        "skew": -0.26173228455916253,
+        "kurtosis": 19.006957144500834,
+        "dsr": 0.9999999999999991
+      }
+    },
+    "headline_window_days": 21,
+    "headline_dsr": 0.9999999999999981
+  }
+}

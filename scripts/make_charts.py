@@ -519,4 +519,58 @@ if mom_path.exists() and mom_ledger_path.exists():
     fig.savefig(CHARTS_DIR / "overnight_momentum_spread_by_window.png", dpi=150)
     plt.close(fig)
 
+# --- Chart 16: walk-forward validation -- in-sample vs out-of-sample equity split ---
+wf_path = REPORTS_DIR / "walk_forward_results.json"
+wf_ledger_path = REPORTS_DIR / "overnight_momentum_ledger.csv"
+if wf_path.exists() and wf_ledger_path.exists():
+    import csv as _csv
+    with open(wf_path) as f:
+        wf = json.load(f)
+    with open(wf_ledger_path) as f:
+        wf_rows = list(_csv.DictReader(f))
+    wf_dates = [datetime.strptime(r["date"], "%Y-%m-%d") for r in wf_rows]
+    wf_top_eq = np.array([float(r["top_tercile_equity"]) for r in wf_rows])
+
+    oos_start = datetime.strptime(wf["standard_holdout"]["out_of_sample_window_start"], "%Y-%m-%d")
+    headline_key = str(wf["headline_window_days"])
+    is_stats = wf["standard_holdout"]["by_window"][headline_key]["in_sample"]
+    oos_stats = wf["standard_holdout"]["by_window"][headline_key]["out_of_sample"]
+
+    fig, ax = plt.subplots(figsize=(11, 6))
+    ax.plot(wf_dates, wf_top_eq, color="#2b6cb0", linewidth=1.3,
+             label=f"{wf['headline_window_days']}-day momentum overlay (top tercile)")
+    ax.axvline(oos_start, color="#c53030", linewidth=1.2, linestyle="--", label="2011: in-sample / out-of-sample split")
+    ax.set_yscale("log")
+    ax.set_ylabel("Growth of $1 (log scale)")
+    ax.set_title(
+        f"Walk-Forward Validation: the {wf['headline_window_days']}-Day Overlay's Sharpe Roughly Halves Out-of-Sample\n"
+        f"(in-sample 1993-2010 Sharpe {is_stats['sharpe']:.2f} -> out-of-sample 2011-2026 Sharpe {oos_stats['sharpe']:.2f}, {wf['cost_bps']:.0f}bps cost)"
+    )
+    ax.legend(loc="upper left", fontsize=9)
+    ax.grid(True, which="both", alpha=0.25)
+    ax.xaxis.set_major_locator(mdates.YearLocator(5))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
+    fig.autofmt_xdate(rotation=45)
+    fig.tight_layout()
+    fig.savefig(CHARTS_DIR / "walk_forward_is_oos_split.png", dpi=150)
+    plt.close(fig)
+
+    # --- Chart 17: purged 5-fold walk-forward selection -- test-fold Sharpe stability ---
+    folds = wf["purged_kfold"]["by_fold"]
+    labels = [f"{f['test_start'][:4]}-{f['test_end'][:4]}\n({f['selected_window_days']}d)" for f in folds]
+    test_sharpes = [f["selected_test_sharpe"] for f in folds]
+    colors = ["#2b6cb0" if f["selected_window_days"] == wf["headline_window_days"] else "#805ad5" for f in folds]
+
+    fig, ax = plt.subplots(figsize=(9, 5.5))
+    ax.bar(labels, test_sharpes, color=colors)
+    ax.axhline(0.65, color="#d69e2e", linewidth=1.2, linestyle="--", label="SPY buy & hold Sharpe (0.65)")
+    ax.axhline(0, color="black", linewidth=0.8)
+    ax.set_ylabel("Out-of-sample (test fold) Sharpe ratio")
+    ax.set_xlabel("Test fold period (selected lookback shown in parentheses)")
+    ax.set_title("Purged Walk-Forward Selection: Positive in Every Fold, but Weaker Recently")
+    ax.legend(loc="upper right", fontsize=9)
+    fig.tight_layout()
+    fig.savefig(CHARTS_DIR / "walk_forward_fold_stability.png", dpi=150)
+    plt.close(fig)
+
 print("Charts written to", CHARTS_DIR)

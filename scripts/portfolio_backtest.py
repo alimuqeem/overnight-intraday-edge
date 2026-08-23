@@ -31,16 +31,16 @@ Two cost models are run:
     day, not a fixed number -- see background/execution_mechanics.md for
     the fee-schedule research this is built on.
 
-Unlike that sibling repo, idle cash is NOT modeled as
-earning a T-bill yield: live T-bill data proved unreliable to fetch in
-this environment (Yahoo's ^IRX endpoint stayed rate-limited across
-repeated attempts with backoff; FRED was unreachable from this sandbox).
-This is a conservative simplification, not a hidden one: both the
-overnight-only and intraday-only portfolios are only ever "invested"
-for roughly half of each trading day by construction, and crediting zero
-yield on the other half understates their real-world total return
-relative to SPY buy & hold (which captures 100% of every day). See
-report.md / background/portfolio_backtest.md for the full caveat.
+A third model, run_backtest_with_cash_yield(), additionally credits idle
+cash with a real, tiered money-market yield during the roughly half of
+each trading day the overnight-only book isn't holding stock (see
+background/idle_cash_yield_modeling.md). An earlier version of this
+project treated live T-bill data as unreachable here; that turned out to
+be the same TLS-fingerprint block already documented for Yahoo's
+endpoints, not a genuine outage -- see fetch_tbills.py. The flat-5bps and
+realistic-cost (no cash yield) models above are left exactly as they
+were for direct before/after comparability; only the third model adds
+the cash leg.
 
 This script deliberately uses numpy/csv instead of pandas (unlike the
 sibling repo) to keep this project's offline-reproduction dependency
@@ -69,6 +69,19 @@ IBKR_COMMISSION_PER_SHARE = 0.0035
 IBKR_COMMISSION_MIN = 0.35
 SPREAD_BPS_ROUNDTRIP = 0.75  # midpoint of the ~0.5-1bps range found for this mega-cap universe
 STARTING_CAPITAL_GRID = [10_000, 25_000, 50_000, 100_000, 250_000, 500_000, 1_000_000, 2_000_000]
+
+# Broker cash-sweep tiers: effective annualized yield Y_t on idle cash is
+# the 3-month T-bill rate minus a spread that narrows with account size
+# (institutional sweeps get closer to the T-bill rate than retail ones).
+# See background/idle_cash_yield_modeling.md for the source of these tiers.
+CASH_SWEEP_SPREAD_TIER_2 = 0.0150  # $10k-$49,999
+CASH_SWEEP_SPREAD_TIER_3 = 0.0050  # $50k-$99,999
+CASH_SWEEP_SPREAD_TIER_4 = 0.0025  # >=$100k
+
+# background/independent_review.md finding #5: the 0.75bps spread assumption
+# above drives the whole tradeability verdict but was never stress-tested.
+SPREAD_SENSITIVITY_BPS = [0.5, 0.75, 1.0, 1.5]
+SPREAD_SENSITIVITY_CAPITAL_LEVELS = [25_000, 50_000, 100_000, 250_000]
 
 CRISIS_WINDOWS = {
     "2008-09 Global Financial Crisis": ("2008-09-01", "2009-03-31"),
@@ -232,6 +245,103 @@ def run_backtest_realistic_cost(
     return overnight_ret, equity_normalized, equity_dollars, n_members, avg_cost_bps
 
 
+def load_tbills():
+    path = DATA_DIR / "factors" / "tbills_daily.csv"
+    data = {}
+    with open(path) as f:
+        for row in csv.DictReader(f):
+            data[row["date"]] = float(row["tbill_yield"])
+    return data
+
+
+def tbill_series_for_dates(tbills: dict, dates: list) -> np.ndarray:
+    """Forward-filled T-bill yield aligned to `dates` (the equity trading
+    calendar), using the most recent FRED print on or before each date.
+    The two calendars mostly coincide (both are US business days) but
+    aren't guaranteed to on every Treasury-specific holiday."""
+    sorted_tbill_dates = sorted(tbills)
+    out = np.zeros(len(dates))
+    j = 0
+    last = tbills[sorted_tbill_dates[0]]
+    for i, d in enumerate(dates):
+        while j < len(sorted_tbill_dates) and sorted_tbill_dates[j] <= d:
+            last = tbills[sorted_tbill_dates[j]]
+            j += 1
+        out[i] = last
+    return out
+
+
+def cash_yield_tier(starting_capital: float, tbill_yield: float) -> float:
+    """Annualized effective cash-sweep yield Y_t for the account-size tier
+    starting_capital falls into."""
+    if starting_capital < 10_000:
+        return 0.0
+    elif starting_capital < 50_000:
+        return max(0.0, tbill_yield - CASH_SWEEP_SPREAD_TIER_2)
+    elif starting_capital < 100_000:
+        return max(0.0, tbill_yield - CASH_SWEEP_SPREAD_TIER_3)
+    else:
+        return max(0.0, tbill_yield - CASH_SWEEP_SPREAD_TIER_4)
+
+
+def run_backtest_with_cash_yield(
+    tickers_ohlc: dict,
+    dates: list,
+    starting_capital: float,
+    tbill_yield_series: np.ndarray,
+    spread_bps: float = SPREAD_BPS_ROUNDTRIP,
+    commission_per_share: float = IBKR_COMMISSION_PER_SHARE,
+    commission_min: float = IBKR_COMMISSION_MIN,
+    assumed_share_price: float = ASSUMED_NOMINAL_SHARE_PRICE,
+):
+    """Same as run_backtest_realistic_cost, but additionally credits idle
+    cash with a tiered money-market yield (cash_yield_tier) for every
+    trading day, on the assumption this overnight-only book holds 100%
+    unencumbered cash during the intraday session (see
+    background/idle_cash_yield_modeling.md). Tier is fixed by
+    starting_capital rather than the day's live balance, matching how
+    real broker cash-sweep programs price off account size."""
+    n = len(dates)
+    equity_dollars = np.zeros(n)
+    equity_dollars[0] = starting_capital
+    total_ret = np.zeros(n)
+    cash_ret = np.zeros(n)
+    n_members = np.zeros(n, dtype=int)
+    avg_cost_bps = np.zeros(n)
+
+    for i in range(1, n):
+        d, d_prev = dates[i], dates[i - 1]
+        current_capital = equity_dollars[i - 1]
+        members = []
+        for ticker, ohlc in tickers_ohlc.items():
+            if d in ohlc and d_prev in ohlc:
+                open_t, _ = ohlc[d]
+                _, close_prev = ohlc[d_prev]
+                members.append((close_prev, open_t))
+        n_members[i] = len(members)
+
+        annual_cash_yield = cash_yield_tier(starting_capital, tbill_yield_series[i])
+        cash_ret[i] = (1 + annual_cash_yield) ** (1 / TRADING_DAYS_PER_YEAR) - 1
+        overnight_ret = 0.0
+
+        if members and current_capital > 0:
+            notional_per_name = current_capital / len(members)
+            shares = notional_per_name / assumed_share_price
+            commission_side = max(shares * commission_per_share, commission_min)
+            commission_rt_bps = commission_side * 2 / notional_per_name * 10000
+            total_cost_bps = commission_rt_bps + spread_bps
+
+            net_legs = [(open_t / close_prev - 1.0) - total_cost_bps / 10000 for close_prev, open_t in members]
+            overnight_ret = np.mean(net_legs)
+            avg_cost_bps[i] = total_cost_bps
+
+        total_ret[i] = overnight_ret + cash_ret[i]
+        equity_dollars[i] = max(equity_dollars[i - 1] * (1 + total_ret[i]), 0.0)
+
+    equity_normalized = equity_dollars / starting_capital
+    return total_ret, equity_normalized, equity_dollars, n_members, avg_cost_bps, cash_ret
+
+
 def find_breakeven_bps(tickers_ohlc: dict, dates: list, lo=0.0, hi=20.0, tol=1e-4):
     """Binary-search the round-trip cost (bps) that drives the overnight
     portfolio's final equity to exactly 1.0 (breakeven)."""
@@ -342,6 +452,51 @@ def main():
         print(f"  Start ${capital:>9,}: CAGR {m['cagr_pct']:7.2f}%  Sharpe {m['sharpe']:5.2f}  "
               f"MaxDD {m['max_drawdown_pct']:7.2f}%  avg cost {avg_cost:.2f}bps  End ${e_dollars[-1]:>14,.0f}")
 
+    print(f"\nRunning cash-yield-augmented model (tiered T-bill sweep on top of IBKR Pro fees) across starting capital levels...")
+    tbills = load_tbills()
+    print(f"Loaded {len(tbills)} days of 3-month T-bill yield (FRED DTB3)")
+    tbill_series = tbill_series_for_dates(tbills, dates)
+    cash_yield_by_capital = []
+    cash_yield_equity_curves = {}
+    for capital in STARTING_CAPITAL_GRID:
+        r, e, e_dollars, members_cy, cost_bps_series, cash_ret_series = run_backtest_with_cash_yield(
+            tickers_ohlc, dates, capital, tbill_series
+        )
+        m = perf_metrics(r[1:], e[1:])
+        avg_cost = float(cost_bps_series[cost_bps_series > 0].mean())
+        avg_cash_yield_pct = float((((1 + cash_ret_series[1:]) ** TRADING_DAYS_PER_YEAR) - 1).mean() * 100)
+        cash_yield_by_capital.append({
+            "starting_capital": capital,
+            "cagr_pct": m["cagr_pct"],
+            "sharpe": m["sharpe"],
+            "max_drawdown_pct": m["max_drawdown_pct"],
+            "final_equity_multiple": m["final_equity"],
+            "final_capital": float(e_dollars[-1]),
+            "avg_trading_cost_bps": avg_cost,
+            "avg_annualized_cash_yield_pct": avg_cash_yield_pct,
+        })
+        cash_yield_equity_curves[str(capital)] = e.tolist()
+        print(f"  Start ${capital:>9,}: CAGR {m['cagr_pct']:7.2f}%  Sharpe {m['sharpe']:5.2f}  "
+              f"MaxDD {m['max_drawdown_pct']:7.2f}%  avg cash yield {avg_cash_yield_pct:.2f}%/yr  End ${e_dollars[-1]:>14,.0f}")
+
+    print(f"\nRunning spread-assumption sensitivity sweep ({SPREAD_SENSITIVITY_BPS} bps, cash-yield model) "
+          f"across the key threshold capital levels...")
+    spread_sensitivity = []
+    for spread in SPREAD_SENSITIVITY_BPS:
+        for capital in SPREAD_SENSITIVITY_CAPITAL_LEVELS:
+            r, e, e_dollars, _, _, _ = run_backtest_with_cash_yield(
+                tickers_ohlc, dates, capital, tbill_series, spread_bps=spread
+            )
+            m = perf_metrics(r[1:], e[1:])
+            spread_sensitivity.append({
+                "spread_bps_roundtrip": spread,
+                "starting_capital": capital,
+                "cagr_pct": m["cagr_pct"],
+                "sharpe": m["sharpe"],
+                "final_capital": float(e_dollars[-1]),
+            })
+            print(f"  spread {spread:.2f}bps, ${capital:>9,}: CAGR {m['cagr_pct']:7.2f}%  Sharpe {m['sharpe']:5.2f}  End ${e_dollars[-1]:>14,.0f}")
+
     results = {
         "period_start": dates[0],
         "period_end": dates[-1],
@@ -363,6 +518,27 @@ def main():
             "spread_bps_roundtrip": SPREAD_BPS_ROUNDTRIP,
             "by_starting_capital": realistic_by_capital,
         },
+        "realistic_cost_model_with_cash_yield": {
+            "note": "Only this section models idle cash yield; the flat_5bps and realistic_cost_model sections above are unchanged and cash-yield-naive, kept as-is for direct before/after comparability.",
+            "commission_per_share": IBKR_COMMISSION_PER_SHARE,
+            "commission_min_per_order": IBKR_COMMISSION_MIN,
+            "spread_bps_roundtrip": SPREAD_BPS_ROUNDTRIP,
+            "tbill_source": "FRED DTB3 (3-month T-bill secondary market rate)",
+            "tbill_window": [dates[0], dates[-1]],
+            "cash_sweep_tiers": {
+                "lt_10k": {"yield": "0%, broker cash drag"},
+                "10k_to_49999": {"spread_below_tbill_pct": CASH_SWEEP_SPREAD_TIER_2 * 100},
+                "50k_to_99999": {"spread_below_tbill_pct": CASH_SWEEP_SPREAD_TIER_3 * 100},
+                "gte_100k": {"spread_below_tbill_pct": CASH_SWEEP_SPREAD_TIER_4 * 100},
+            },
+            "by_starting_capital": cash_yield_by_capital,
+        },
+        "spread_sensitivity": {
+            "note": "Stress test of the 0.75bps spread assumption used throughout, on the cash-yield model, at the capital levels where the tradeability verdict actually turns.",
+            "bps_tested": SPREAD_SENSITIVITY_BPS,
+            "capital_levels_tested": SPREAD_SENSITIVITY_CAPITAL_LEVELS,
+            "results": spread_sensitivity,
+        },
     }
     with open(REPORTS_DIR / "portfolio_backtest_results.json", "w") as f:
         json.dump(results, f, indent=2, default=str)
@@ -374,6 +550,15 @@ def main():
         writer.writerow(header)
         for i in range(len(dates)):
             row = [dates[i]] + [realistic_equity_curves[str(c)][i] for c in STARTING_CAPITAL_GRID]
+            writer.writerow(row)
+
+    # Cash-yield-augmented equity curves, one column per starting capital level
+    with open(REPORTS_DIR / "portfolio_cash_yield_ledger.csv", "w", newline="") as f:
+        writer = csv.writer(f)
+        header = ["date"] + [f"equity_{c}" for c in STARTING_CAPITAL_GRID]
+        writer.writerow(header)
+        for i in range(len(dates)):
+            row = [dates[i]] + [cash_yield_equity_curves[str(c)][i] for c in STARTING_CAPITAL_GRID]
             writer.writerow(row)
 
     # Save the daily ledger for transparency/reproducibility
@@ -388,6 +573,7 @@ def main():
     print(f"\nSaved -> {REPORTS_DIR / 'portfolio_backtest_results.json'}")
     print(f"Saved -> {REPORTS_DIR / 'portfolio_backtest_ledger.csv'}")
     print(f"Saved -> {REPORTS_DIR / 'portfolio_realistic_cost_ledger.csv'}")
+    print(f"Saved -> {REPORTS_DIR / 'portfolio_cash_yield_ledger.csv'}")
 
 
 if __name__ == "__main__":

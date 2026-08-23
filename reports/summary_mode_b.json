@@ -1,0 +1,37 @@
+{
+  "n_tickers_total": 33,
+  "n_tickers_cross_section": 30,
+  "benchmark_tickers_excluded_from_cross_section": [
+    "MU",
+    "QQQ",
+    "SPY"
+  ],
+  "spy_buyhold_benchmark": {
+    "cagr_pct": 10.863662418449094,
+    "start": "1993-01-29",
+    "end": "2026-08-21",
+    "years": 33.523809523809526
+  },
+  "cross_sectional_overnight_mean_bps": 5.150986173684836,
+  "cross_sectional_overnight_t": 6.096624893042505,
+  "cross_sectional_overnight_p": 1.222298542841141e-06,
+  "cross_sectional_intraday_mean_bps": 3.0550194624726354,
+  "cross_sectional_intraday_t": 6.6751719946746135,
+  "cross_sectional_intraday_p": 2.545564840476459e-07,
+  "paired_overnight_vs_intraday_t": 1.9676475353880458,
+  "paired_overnight_vs_intraday_p": 0.05873807813844062,
+  "pct_tickers_overnight_positive_significant_uncorrected": 70.0,
+  "pct_tickers_intraday_negative_significant_uncorrected": 0.0,
+  "n_tickers_overnight_significant_after_bh_fdr": 22,
+  "n_tickers_intraday_significant_after_bh_fdr": 2,
+  "expected_false_positives_at_5pct_by_chance": 1.5,
+  "median_overnight_breakeven_bps": 3.810086101293564,
+  "n_overnight_alpha_significant_after_factors": 17,
+  "n_overnight_alpha_regressions": 30,
+  "mean_overnight_alpha_ann_pct": 8.271226472167953,
+  "n_intraday_alpha_significant_after_factors": 8,
+  "n_intraday_alpha_regressions": 30,
+  "mean_intraday_alpha_ann_pct": 7.163856086112149,
+  "mean_overnight_mom_loading": 0.002826166852314719,
+  "mean_overnight_mom_loading_t": 0.2060850023735717
+}

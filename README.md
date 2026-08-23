@@ -87,8 +87,9 @@ background/portfolio_backtest.md       is this actually tradeable? full equity-c
 background/correlation_tail_risk_analysis.md  how much real diversification and tail risk does the 30-name book have?
 background/vix_regime_analysis.md      is the edge stronger in high-VIX regimes, and is it timeable?
 background/overnight_momentum_analysis.md  does a stock's own trailing overnight return predict its future overnight return?
+background/independent_review.md       outside audit: is this analysis complete before trading real capital?
 ```
 
 ## Disclaimer
 
-Research only, not investment advice. See [report.md](report.md#limitations) for limitations (no taxes/execution-mechanics modeled, flat-cost assumption, survivorship within "still-large-cap-today" names) and [background/execution_mechanics.md](background/execution_mechanics.md) for what it would actually take to trade this (order types, broker support, gap risk, taxes).
+Research only, not investment advice. See [report.md](report.md#limitations) for limitations (no taxes/execution-mechanics modeled, flat-cost assumption, survivorship within "still-large-cap-today" names) and [background/execution_mechanics.md](background/execution_mechanics.md) for what it would actually take to trade this (order types, broker support, gap risk, taxes). See [background/independent_review.md](background/independent_review.md) for an outside audit of whether the analysis is complete, including an undisclosed `open==close` data bias and an idle-cash-yield sensitivity that could move the headline tradeability verdict.

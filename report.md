@@ -201,6 +201,64 @@ Everything above establishes that the effect is real, where it concentrates, and
 - §10's momentum-overlay test is in-sample (the signal was tested on the same data used to discover it, with no held-out validation period), and long-horizon trailing-return sorts can partly capture structural company quality/distress rather than a pure overnight-specific effect; see [`background/overnight_momentum_analysis.md`](background/overnight_momentum_analysis.md) for the full discussion.
 - An outside audit found an undisclosed data issue: days where the recorded open equals the recorded close (a Yahoo Finance artifact, concentrated in the pre-2000 portion of each ticker's history, up to ~22% of AAPL's earliest years) mechanically route the whole day's return into the overnight leg, inflating exactly the effect this project measures in full-history per-ticker numbers, the old-economy sector conclusions, and the MU appendix. Modern-era numbers are largely clean (0.2-0.9% incidence). Not yet fixed or re-run. Full findings, plus a bigger-picture flag on the idle-cash-yield sensitivity and an OOS-validation gap: [`background/independent_review.md`](background/independent_review.md).
 
+## 12. Glossary of Terms (Layperson's Guide)
+
+A quick-reference guide explaining the financial, quantitative, and statistical concepts used throughout this project in plain English.
+
+### Trading Sessions & Order Mechanics
+
+*   **Overnight Leg (Overnight Drift):** The percentage price change from the official market close of one day ($16:00\text{ ET}$) to the official market open of the following trading day ($09:30\text{ ET}$). Computed as $\frac{\text{Open}_t}{\text{Close}_{t-1}} - 1$. This captures gains or losses that happen while regular US stock exchanges are closed.
+*   **Intraday Leg:** The percentage price change during the regular trading session from the opening bell to the closing bell. Computed as $\frac{\text{Close}_t}{\text{Open}_t} - 1$.
+*   **Buy-and-Hold:** The traditional investment approach of buying a share and simply holding it continuously across both day and night sessions without trading. Mathematically, $(1 + \text{Overnight}) \times (1 + \text{Intraday}) = 1 + \text{Buy-and-Hold Return}$.
+*   **Market-on-Close (MOC) Order:** An order sent to the exchange execution auction requesting to purchase or sell shares exactly at the official closing print of the regular trading day.
+*   **Market-on-Open (MOO) Order:** An order requesting execution at the official opening price determined by the exchange's morning opening auction.
+*   **Weekend Gap:** The overnight return earned between Friday's close and Monday's open, spanning three calendar days of global news and events rather than a single 17.5-hour overnight gap.
+*   **Bid-Ask Spread & Slippage:** The bid is the highest price buyers offer; the ask is the lowest price sellers accept. The spread is the difference between them (a direct cost of trading). Slippage is the difference between the expected price when placing an order and the actual price at which the order fills in the market auction.
+
+### Statistical & Econometric Concepts
+
+*   **Autocorrelation (Serial Correlation):** When today's return is correlated with yesterday's return rather than being completely independent. In daily stock returns, treating days as independent when they are autocorrelated creates artificially inflated statistical confidence.
+*   **Volatility Clustering:** The tendency for calm trading days to follow calm days, and turbulent, volatile days to follow turbulent days (risk arrives in clusters rather than being evenly spread).
+*   **Newey-West HAC Standard Errors:** An econometric correction technique (Heteroskedasticity and Autocorrelation Consistent) developed by Whitney Newey and Kenneth West. It adjusts standard statistical tests (like the $t$-test) to remain accurate even when returns suffer from autocorrelation and volatility clustering, preventing false claims of "statistical significance."
+*   **$t$-Statistic & $p$-Value:** A $t$-statistic measures how many standard errors an estimated return is away from zero (a value above $+1.96$ or below $-1.96$ indicates a $<5\%$ chance of occurring randomly under normal assumptions). The $p$-value is the probability that the observed result occurred by pure random chance. A $p$-value $<0.05$ is conventionally called "statistically significant."
+*   **Benjamini-Hochberg False Discovery Rate (FDR):** When you test 30 different stocks at a $95\%$ confidence level, you expect $\sim 1.5$ false positives purely by chance (the *multiple comparisons problem*). The Benjamini-Hochberg procedure dynamically tightens the $p$-value threshold across all 30 tests so that the overall proportion of accidental false discoveries is controlled below $5\%$.
+*   **Selection Bias & Survivorship Bias:** *Selection bias* occurs when picking a winning stock (like Micron / $MU$) because of its known historical success, creating a distorted impression of average market behaviour. *Survivorship bias* occurs when only studying companies that survived and are large caps today, ignoring failed or delisted companies.
+*   **Z-Score & 3-Sigma ($3\sigma$) Extreme Gaps:** A Z-score measures how many standard deviations a single day's move is away from that stock's average move. A $3\sigma$ move represents an extreme statistical outlier (the top/bottom $\sim 0.3\%$ of a normal distribution), typically caused by earnings surprises, takeover bids, or major macro shocks.
+
+### Asset Pricing & Risk Factors
+
+*   **Fama-French 4-Factor Model:** A standard financial model explaining stock returns through four systematic market drivers:
+    1.  **Mkt-RF (Market Risk):** Broad stock market return minus the risk-free cash rate.
+    2.  **SMB (Small Minus Big):** The historical premium earned by small-cap companies over large-caps.
+    3.  **HML (High Minus Low / Value):** The historical premium earned by value stocks (high book-to-market) over growth stocks.
+    4.  **MOM / UMD (Momentum):** The premium earned by stocks that went up over the past 12 months over stocks that went down.
+*   **Alpha ($\alpha$):** The portion of an investment's return that cannot be explained by exposure to broad market movements or known risk factors (Fama-French factors). True "excess return" or genuine managerial/strategy edge.
+*   **Beta ($\beta$):** A measure of sensitivity to the broad market. A beta of $1.0$ moves in lockstep with the market; a beta of $0.5$ experiences half the market's swings.
+*   **Risk-Free Rate ($R_f$):** The theoretical rate of return on an investment with zero credit risk, usually represented by short-term US Treasury bill yields.
+*   **CBOE Volatility Index (VIX):** Often called Wall Street's "fear gauge", the VIX measures the stock market's 30-day forward implied volatility priced into S&P 500 index options.
+*   **Uncertainty Resolution Hypothesis:** A financial theory suggesting that holding risk overnight carries uncertainty (macro announcements, international market moves, geopolitical news). Investors require an overnight premium (higher return) as compensation for bearing this closed-market risk, which resolves when the market opens.
+
+### Portfolio Performance & Risk Metrics
+
+*   **Basis Point (bps):** A unit of measure equal to one-hundredth of a percentage point ($0.01\%$). $100\text{ bps} = 1.0\%$; $5\text{ bps} = 0.05\%$.
+*   **Compound Annual Growth Rate (CAGR):** The geometric annualised rate of return that would grow an investment from its initial value to its ending balance, accounting for compounding.
+*   **Annualised Volatility:** The standard deviation of daily returns scaled to an annual basis (multiplying by $\sqrt{252}$ trading days). A measure of how wildly an asset's price fluctuates.
+*   **Sharpe Ratio:** A measure of risk-adjusted return calculated as $\frac{\text{Mean Return} - R_f}{\text{Annualised Volatility}}$. Higher values indicate more return per unit of total risk (values above $1.0$ are generally considered strong).
+*   **Sortino Ratio:** Similar to the Sharpe ratio, but only penalises *downside volatility* (losses), ignoring upside volatility.
+*   **Maximum Drawdown (Max DD):** The largest peak-to-trough percentage loss experienced by an investment portfolio before a new high is reached.
+*   **Calmar Ratio:** The ratio of a portfolio's CAGR to its Maximum Drawdown ($\frac{\text{CAGR}}{|\text{Max DD}|}$), measuring return relative to severe downside pain.
+*   **Breakeven Transaction Cost:** The exact round-trip trading cost (in bps) that completely eliminates a strategy's compounded profit, reducing total return to $0\%$.
+*   **Ticket Fee Minimum & Reflexive Death Spiral:** Brokers often charge a minimum fixed ticket fee per order (e.g. IBKR's $\$0.35/\text{trade}$). On small accounts, a $\$0.35$ fee on a tiny position represents a massive percentage cost ($15\text{--}25+\text{ bps}$). When losses shrink the account further, position sizes get smaller, making the fixed fee an even larger percentage drag, triggering a reflexive downward spiral to total ruin.
+
+### Portfolio Construction & Tail Risk
+
+*   **Meucci Participation Ratio (Effective Bets):** A linear-algebra metric based on principal component eigenvalues ($PR = \frac{n^2}{\sum \lambda_i^2}$). It measures how many truly independent bets a portfolio holds. If 30 stocks all move together during macro shocks, their effective bets may only equal $\sim 5$ rather than $30$.
+*   **Skewness & Excess Kurtosis (Fat Tails):** *Skewness* measures asymmetry in return distribution (negative skew means rare, large crashes). *Kurtosis* measures the thickness of distribution tails relative to a bell curve (high kurtosis means extreme outlier events happen much more frequently than normal Gaussian probability predicts).
+*   **Conditional Value at Risk (CVaR / Expected Shortfall):** The average expected loss occurring in the worst $1\%$ or $5\%$ tail of trading days. Unlike standard Value at Risk (which only gives a cutoff threshold), CVaR answers: *"When severe disaster strikes, how much do we actually lose on average?"*
+*   **Cross-Sectional Tercile Sort (Overnight Momentum):** Dividing all stocks in the universe into three equal tiers (top $33\%$, middle $33\%$, bottom $33\%$) based on their past overnight performance, and systematically investing in the top tier while avoiding or shorting the bottom tier.
+
+---
+
 ## Appendix: the original MU claim
 
 Independently reproduced from full MU daily OHLC history, dividend+split adjusted (1990-01-02 to 2026-08-21, 9,227 trading days):
@@ -215,3 +273,4 @@ Close enough to confirm the claim is genuine (not fabricated), with the small ga
 ## Disclaimer
 
 Research only, not investment advice. Historical statistical patterns, however well-documented and factor-adjusted, are not guarantees of future returns, and this analysis does not model taxes, real execution mechanics (market-on-open/market-on-close order types), or the risk of adverse overnight gaps on any specific position.
+

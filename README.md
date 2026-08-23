@@ -12,7 +12,7 @@ Source: [@wheelieinvestor on X](https://x.com/wheelieinvestor/status/20908276731
 
 That claim [checks out](report.md#appendix-the-original-mu-claim) against real data. This project asks the harder question: **does that generalize into a real, tradable edge, or is MU an outlier?**
 
-**→ [Read the full report](report.md)**
+**→ [Read the full report](report.md)** | **→ [Layperson's Glossary](report.md#12-glossary-of-terms-laypersons-guide)**
 
 > **v2:** rebuilt after an institutional-style methodology review. Fixed a dividend-adjustment bug that was leaking ex-dividend price drops into the overnight leg, added Newey-West HAC-robust significance testing, added a Fama-French factor regression to test whether the effect is repackaged momentum (it isn't), and excluded SPY/QQQ/MU from cross-sectional pooling to remove double-counting/selection bias. Details in [report.md](report.md#1-method).
 
